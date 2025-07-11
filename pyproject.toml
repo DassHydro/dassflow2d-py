@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dassflow2d-py"
+version = "0.1.0"
+authors = [
+    { name="Mateo Laforge", email="laforgemateo@gmail.com" },
+    { name="Aboubacar Bah" }
+]
+description = "Python translation and optimization of [dassflow2d](https://github.com/DassHydro/dassflow2d)"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: CeCILL",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/DassHydro/dassflow2d-py"
+Documentation = "https://github.com/DassHydro/dassflow2d-py/wiki"
+Repository = "https://github.com/DassHydro/dassflow2d-py.git"
+Issues = "https://github.com/DassHydro/dassflow2d-py/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dassflow2d_py*"]
