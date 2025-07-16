@@ -1,7 +1,7 @@
 import unittest
 import sys
 from io import StringIO
-from src.main.py.fr.dasshydro.dassflow2d_py.Example import example
+from src.main.py.fr.dasshydro.dassflow2d_py.example import example
 
 class TestExample(unittest.TestCase):
 
