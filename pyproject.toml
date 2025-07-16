@@ -29,4 +29,4 @@ Issues = "https://github.com/DassHydro/dassflow2d-py/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["dassflow2d-py*"]
+include = ["dassflow2d_py*"]
