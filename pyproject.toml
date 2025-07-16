@@ -7,7 +7,10 @@ name = "dassflow2d-py"
 version = "0.1.0"
 authors = [
     { name="Mateo Laforge", email="laforgemateo@gmail.com" },
-    { name="Aboubacar Bah" }
+    { name="Aboubacar Bah", email="sidikibah100@gmail.com" },
+    { name="Pierre-André Garambois" },
+    { name="Ngo Nghi Truyen Huynh" },
+    { name="Mouad Ettalbi" }
 ]
 description = "Python translation and optimization of [dassflow2d](https://github.com/DassHydro/dassflow2d)"
 readme = "README.md"
@@ -26,4 +29,4 @@ Issues = "https://github.com/DassHydro/dassflow2d-py/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["dassflow2d_py*"]
+include = ["dassflow2d-py*"]
