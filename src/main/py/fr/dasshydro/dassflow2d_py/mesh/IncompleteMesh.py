@@ -1,4 +1,4 @@
-from mesh.Mesh import Mesh
+from Mesh import Mesh
 
 class IncompleteMesh:
 
@@ -7,4 +7,3 @@ class IncompleteMesh:
 
     def complete(self) -> Mesh:
         raise NotImplementedError("Not yet implemented.")
-
