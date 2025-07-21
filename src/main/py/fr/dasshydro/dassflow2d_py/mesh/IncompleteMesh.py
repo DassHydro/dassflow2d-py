@@ -1,4 +1,4 @@
-from Mesh import Mesh
+from mesh.Mesh import Mesh
 
 class IncompleteMesh:
 

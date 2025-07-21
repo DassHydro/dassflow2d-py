@@ -1,13 +1,13 @@
 from enum import Enum
 
 class MeshShape(Enum):
-    TRIANGULAR = 1
-    QUADRILATERAL = 2
-    HYBRID = 3
+    TRIANGULAR = "triangular"
+    QUADRILATERAL = "quadrilateral"
+    HYBRID = "hybrid"
 
 class MeshType(Enum):
-    BASIC = 0
-    DASSFLOW = 1
+    BASIC = "basic"
+    DASSFLOW = "dassflow"
 
 class Mesh:
 

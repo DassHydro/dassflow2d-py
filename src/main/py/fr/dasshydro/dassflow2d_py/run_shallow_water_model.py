@@ -1,24 +1,40 @@
 # imports
-import input.Configuration as cfg
+from input.Configuration import Configuration, load_from_file
 from input.MeshReader import MeshReader
 from mesh.Mesh import MeshType, MeshShape
 from resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
 
 
-def get_mesh_reader(mesh_type: MeshType, mesh_shape: MeshShape) -> MeshReader:
+def get_mesh_reader(configuration: Configuration) -> MeshReader:
     """
-    Decide what MeshReader to use based on mesh type and shape
+    Decide what MeshReader to use based on mesh type
 
-    
+    :param Configuration configuration: Configuration of the launch
+    :return: An instance of MeshReader configured for the specified mesh type
+    :rtype: MeshReader
     """
+    mesh_type = configuration.getMeshType()
     if mesh_type == MeshType.DASSFLOW:
+
         import input.DassflowMeshReader
         return input.DassflowMeshReader()
+    
     else:
+
         raise NotImplementedError("Not yet implemented.")
 
 
-def get_resolution_method(temporal_scheme: TemporalScheme, spatial_scheme: SpatialScheme) -> ResolutionMethod:
+def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
+    """
+    Decide what ResolutionMethod to use based on temporal and spatial schemes
+
+    :param Configuration configuration: Configuration of the launch
+    :return: An instance of ResolutionMethod suited for selected schemes
+    :rtype: ResolutionMethod
+    """
+    temporal_scheme = configuration.getTemporalScheme()
+    spatial_scheme = configuration.getSpatialScheme()
+
     if temporal_scheme == TemporalScheme.EULER:
 
         if spatial_scheme == SpatialScheme.FIRST:
@@ -42,37 +58,24 @@ def get_resolution_method(temporal_scheme: TemporalScheme, spatial_scheme: Spati
             raise NotImplementedError("RK2 with MUSCL spatial scheme is not yet implemented.")
 
 
-def run_shallow_water_model(temporal_scheme: TemporalScheme,
-                            spatial_scheme: SpatialScheme,
-                            input_folder_path: str,
-                            configuration_file: str,
-                            mesh_file: str):
+def run_shallow_water_model(configuration: Configuration):
     """
     Configure and run the shallow water model using data from the specified input folder.
 
     This function is responsible for setting up any necessary data required for the shallow water model and then executing the
     model using the configured data.
 
-    :param str input_folder_path: The path to the folder containing the input files for the shallow water model.
-        This folder is assumed to contains all information necessary for the shallow water model to run
-    :param str configuration_file: The name of the file inside the input folder path that represent the configuration file.
+    :param Configuration configuration: Configuration of the launch
     :raises: NotImplementedError: This function is not implemented yet and will raise a NotImplementedError when called.
     """
-
-    configuration = cfg.load_from_file(f"{input_folder_path}/{configuration_file}")
-    mesh_type = configuration.getMeshType()
-    mesh_shape = configuration.getMeshShape()
-    mesh_reader = get_mesh_reader(mesh_type, mesh_shape)
-    incomplete_mesh = mesh_reader.read(f"{input_folder_path}/{mesh_file}")
+    mesh_reader = get_mesh_reader(configuration)
+    mesh_file = configuration.getMeshFile()
+    incomplete_mesh = mesh_reader.read(mesh_file)
 
     mesh = incomplete_mesh.complete()
 
     # Instantiate used resolution method based on parameters
-    resolution_method = get_resolution_method(
-        temporal_scheme,
-        spatial_scheme
-        # later optional configuration inputs will go here (like infiltration_file)
-    )
+    resolution_method = get_resolution_method(configuration)
 
     # TODO: Initialise first time step state
 
@@ -80,62 +83,80 @@ def run_shallow_water_model(temporal_scheme: TemporalScheme,
 
 
 import argparse
-from resolution.ResolutionMethod import TemporalScheme, SpatialScheme
 
 def main():
     # Setup argument parser
     parser = argparse.ArgumentParser(description="Process a folder path")
 
     parser.add_argument(
-        "temporal_scheme",
-        type=str, choices=["euler", "rk2"],
-        help="Which temporal scheme for resolution method to use"
-    )
-
-    parser.add_argument(
-        "spatial_scheme",
-        type=str, choices=["first", "muscl"],
-        help="Which spatial scheme for resolution method to use"
-    )
-
-    parser.add_argument(
-        "--folder_path", "-i",
+        "--config", "-c",
         type=str,
-        help="Path to the folder containing input files",
-        default="inputs", required=False
+        help="Configuration file path",
+        default="inputs/config.yaml",
+        required=False
     )
 
     parser.add_argument(
-        "--configuration-file", "-c",
+        "--mesh-type", "-mt",
         type=str,
-        help="Configuration file name",
-        default="input.txt", required=False
+        choices=["basic", "dassflow"],
+        help="Temporal scheme for resolution method",
+        required=False
+    )
+
+    parser.add_argument(
+        "--mesh-shape", "-ms",
+        type=str,
+        choices=["triangular", "quadrilateral", "hybrid"],
+        help="Temporal scheme for resolution method",
+        required=False
     )
 
     parser.add_argument(
         "--mesh-file", "-m",
         type=str,
         help="Mesh file name",
-        default="mesh.geo", required=False
+        required=False
+    )
+
+    parser.add_argument(
+        "--temporal-scheme", "-ts",
+        type=str,
+        choices=["euler", "rk2"],
+        help="Temporal scheme for resolution method",
+        required=False
+    )
+
+    parser.add_argument(
+        "--spatial-scheme", "-ss",
+        type=str,
+        choices=["first", "muscl"],
+        help="Spatial scheme for resolution method",
+        required=False
     )
 
     args = parser.parse_args()
 
-    # Run model with parsed values
-    try:
-        temporal_scheme = TemporalScheme(args.temporal_scheme)
-        spatial_scheme = SpatialScheme(args.spatial_scheme)
-    except ValueError as e:
-        print(e)
-        return None
-    
-    run_shallow_water_model(
-        temporal_scheme,
-        spatial_scheme,
-        args.folder_path,
-        args.configuration_file,
-        args.mesh_file
-    )
+    # Load configuration from file
+    configuration = load_from_file(args.config)
+
+    # Set configuration values using setters
+    if args.mesh_type:
+        configuration.setMeshType(MeshType(args.mesh_type))
+
+    if args.mesh_shape:
+        configuration.setMeshShape(MeshShape(args.mesh_shape))
+
+    if args.temporal_scheme:
+        configuration.setTemporalScheme(TemporalScheme(args.temporal_scheme))
+
+    if args.spatial_scheme:
+        configuration.setSpatialScheme(SpatialScheme(args.spatial_scheme))
+
+    if args.mesh_file:
+        configuration.setMeshFile(args.mesh_file)
+
+    run_shallow_water_model(configuration)
 
 if __name__ == "__main__":
     main()

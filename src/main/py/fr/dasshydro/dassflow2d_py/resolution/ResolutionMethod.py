@@ -9,7 +9,7 @@ class SpatialScheme(Enum):
     MUSCL = "muscl"
 
 from abc import ABC, abstractmethod
-from time.TimeStepState import TimeStepState
+from resolution.TimeStepState import TimeStepState
 from mesh.Mesh import Mesh
 
 class ResolutionMethod(ABC):
