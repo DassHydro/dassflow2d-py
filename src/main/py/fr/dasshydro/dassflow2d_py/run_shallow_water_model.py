@@ -18,7 +18,7 @@ def run_shallow_water_model(input_folder_path: str, configuration_file: str, mes
     and then executing the model using the configured data.
 
     :param str input_folder_path: The path to the folder containing the input files for the shallow water model.
-        This folder is assumed to contains all informations necessary for the shallow water model to run
+        This folder is assumed to contains all information necessary for the shallow water model to run
     :param str configuration_file: The name of the file inside the input folder path that represent the configuration file.
     :raises: NotImplementedError: This function is not implemented yet and will raise a NotImplementedError when called.
     """
@@ -27,9 +27,9 @@ def run_shallow_water_model(input_folder_path: str, configuration_file: str, mes
     mesh_type = configuration.getMeshType()
     mesh_shape = configuration.getMeshShape()
     mesh_reader = get_mesh_reader(mesh_type, mesh_shape)
-    uncomplete_mesh = mesh_reader.read(f"{input_folder_path}/{mesh_file}")
+    incomplete_mesh = mesh_reader.read(f"{input_folder_path}/{mesh_file}")
 
-    mesh = uncomplete_mesh.complete()
+    mesh = incomplete_mesh.complete()
 
     raise NotImplementedError("Not yet implemented.")
 

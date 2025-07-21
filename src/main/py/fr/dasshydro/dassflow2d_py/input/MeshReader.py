@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from mesh.UncompleteMesh import UncompleteMesh
+from mesh.IncompleteMesh import IncompleteMesh
 
 class MeshReader(ABC):
     @abstractmethod
-    def read(self, file_path) -> UncompleteMesh:
+    def read(self, file_path) -> IncompleteMesh:
         pass

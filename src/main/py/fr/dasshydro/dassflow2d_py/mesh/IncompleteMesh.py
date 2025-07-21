@@ -1,6 +1,6 @@
 from mesh.Mesh import Mesh
 
-class UncompleteMesh:
+class IncompleteMesh:
 
     def __init__(self):
         raise NotImplementedError("Not yet implemented.")
