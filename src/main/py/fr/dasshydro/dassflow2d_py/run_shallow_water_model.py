@@ -2,7 +2,6 @@
 from input.Configuration import Configuration, load_from_file
 from input.MeshReader import MeshReader
 from mesh.Mesh import MeshType, MeshShape
-from resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
 
 
 def get_mesh_reader(configuration: Configuration) -> MeshReader:
@@ -16,13 +15,15 @@ def get_mesh_reader(configuration: Configuration) -> MeshReader:
     mesh_type = configuration.getMeshType()
     if mesh_type == MeshType.DASSFLOW:
 
-        import input.DassflowMeshReader
-        return input.DassflowMeshReader()
+        from input.DassflowMeshReader import DassflowMeshReader
+        return DassflowMeshReader()
     
     else:
 
         raise NotImplementedError("Not yet implemented.")
 
+
+from resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
 
 def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
     """
