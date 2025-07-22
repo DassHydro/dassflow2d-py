@@ -59,6 +59,8 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
             raise NotImplementedError("RK2 with MUSCL spatial scheme is not yet implemented.")
 
 
+from input.InitialStateReader import InitialStateReader
+
 def run_shallow_water_model(configuration: Configuration):
     """
     Configure and run the shallow water model using data from the specified input folder.
@@ -78,7 +80,10 @@ def run_shallow_water_model(configuration: Configuration):
     # Instantiate used resolution method based on parameters
     resolution_method = get_resolution_method(configuration)
 
-    # TODO: Initialise first time step state
+    # Initialise first time step state
+    initial_state_reader = InitialStateReader()
+    initial_state_file = configuration.getInitialStateFile()
+    initial_state = initial_state_reader.read(initial_state_file)
 
     # TODO: Iterative call loop will go here
 

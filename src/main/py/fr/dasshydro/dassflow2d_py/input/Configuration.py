@@ -21,6 +21,9 @@ class Configuration:
     def getSpatialScheme(self) -> SpatialScheme:
         raise NotImplementedError("Not yet implemented.")
     
+    def getInitialStateFile(self) -> str:
+        raise NotImplementedError("Not yet implemented.")
+    
     def setMeshType(self, mesh_type: MeshType):
         raise NotImplementedError("Not yet implemented.")
 
@@ -34,6 +37,9 @@ class Configuration:
         raise NotImplementedError("Not yet implemented.")
 
     def setSpatialScheme(self, spatial_scheme: SpatialScheme):
+        raise NotImplementedError("Not yet implemented.")
+    
+    def setInitialStateFile(self, initial_state_file: str):
         raise NotImplementedError("Not yet implemented.")
 
 
