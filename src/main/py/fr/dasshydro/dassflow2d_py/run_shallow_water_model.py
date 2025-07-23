@@ -91,16 +91,18 @@ def run_shallow_water_model(configuration: Configuration):
 import argparse
 
 def main():
+    args_name = []
     # Setup argument parser
     parser = argparse.ArgumentParser(description="Process a folder path")
 
     parser.add_argument(
-        "--config", "-c",
+        "--config-file", "-c",
         type=str,
         help="Configuration file path",
         default="inputs/config.yaml",
         required=False
     )
+    args_name.append("config_file")
 
     parser.add_argument(
         "--mesh-type", "-mt",
@@ -109,6 +111,7 @@ def main():
         help="Temporal scheme for resolution method",
         required=False
     )
+    args_name.append("mesh_type")
 
     parser.add_argument(
         "--mesh-shape", "-ms",
@@ -117,6 +120,7 @@ def main():
         help="Temporal scheme for resolution method",
         required=False
     )
+    args_name.append("mesh_shape")
 
     parser.add_argument(
         "--mesh-file", "-m",
@@ -124,6 +128,7 @@ def main():
         help="Mesh file name",
         required=False
     )
+    args_name.append("mesh_file")
 
     parser.add_argument(
         "--temporal-scheme", "-ts",
@@ -132,6 +137,7 @@ def main():
         help="Temporal scheme for resolution method",
         required=False
     )
+    args_name.append("temporal_scheme")
 
     parser.add_argument(
         "--spatial-scheme", "-ss",
@@ -140,27 +146,21 @@ def main():
         help="Spatial scheme for resolution method",
         required=False
     )
+    args_name.append("spatial_scheme")
 
     args = parser.parse_args()
 
     # Load configuration from file
     configuration = load_from_file(args.config)
 
-    # Set configuration values using setters
-    if args.mesh_type:
-        configuration.setMeshType(MeshType(args.mesh_type))
-
-    if args.mesh_shape:
-        configuration.setMeshShape(MeshShape(args.mesh_shape))
-
-    if args.temporal_scheme:
-        configuration.setTemporalScheme(TemporalScheme(args.temporal_scheme))
-
-    if args.spatial_scheme:
-        configuration.setSpatialScheme(SpatialScheme(args.spatial_scheme))
-
-    if args.mesh_file:
-        configuration.setMeshFile(args.mesh_file)
+    # Update configuration values with command line arguments
+    configuration_values = {}
+    for arg_name in args_name:
+        arg_value = getattr(args, arg_name)
+        if arg_value is not None:
+            configuration_values[arg_name] = arg_value
+            
+    configuration.updateValues(configuration_values)
 
     run_shallow_water_model(configuration)
 

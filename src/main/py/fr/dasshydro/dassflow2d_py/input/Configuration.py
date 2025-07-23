@@ -24,22 +24,7 @@ class Configuration:
     def getInitialStateFile(self) -> str:
         raise NotImplementedError("Not yet implemented.")
     
-    def setMeshType(self, mesh_type: MeshType):
-        raise NotImplementedError("Not yet implemented.")
-
-    def setMeshShape(self, mesh_shape: MeshShape):
-        raise NotImplementedError("Not yet implemented.")
-    
-    def setMeshFile(self, mesh_file: str):
-        raise NotImplementedError("Not yet implemented.")
-
-    def setTemporalScheme(self, temporal_scheme: TemporalScheme):
-        raise NotImplementedError("Not yet implemented.")
-
-    def setSpatialScheme(self, spatial_scheme: SpatialScheme):
-        raise NotImplementedError("Not yet implemented.")
-    
-    def setInitialStateFile(self, initial_state_file: str):
+    def updateValues(values: dict[str, str]):
         raise NotImplementedError("Not yet implemented.")
 
 
