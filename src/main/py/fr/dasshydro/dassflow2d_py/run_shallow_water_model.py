@@ -42,7 +42,7 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
 
             # TODO: configure euler time step here (porosity, infiltration...)
             from resolution.EulerTimeStep import EulerTimeStep
-            return EulerTimeStep()
+            return EulerTimeStep(configuration)
         
         elif spatial_scheme == SpatialScheme.MUSCL:
 
