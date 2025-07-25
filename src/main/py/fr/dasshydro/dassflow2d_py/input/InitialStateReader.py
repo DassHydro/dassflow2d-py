@@ -1,4 +1,4 @@
-from resolution.TimeStepState import TimeStepState
+from d2dtime.TimeStepState import TimeStepState
 
 class InitialStateReader:
 
