@@ -99,7 +99,8 @@ def run_shallow_water_model(configuration: Configuration):
     delta_to_write = configuration.getDeltaToWrite()
 
     # Instantiate result writer
-    result_writer = ResultWriter(delta_to_write)
+    result_file_path = configuration.getResultFilePath()
+    result_writer = ResultWriter(result_file_path, delta_to_write)
 
     # Initialize runner variables
     current_state = initial_state

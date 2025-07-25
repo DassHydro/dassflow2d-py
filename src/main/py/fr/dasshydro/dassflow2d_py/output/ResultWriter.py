@@ -1,4 +1,4 @@
-
+from d2dtime.TimeStepState import TimeStepState
 
 class ResultWriter:
     """
@@ -6,11 +6,11 @@ class ResultWriter:
     TimeStepState results
     """
 
-    def __init__(self, delta_to_write: float):
+    def __init__(self, result_file_path: str, delta_to_write: float,):
         raise NotImplementedError("Not yet implemented.")
     
     def isTimeToWrite(self, current_simulation_time: float) -> bool:
         raise NotImplementedError("Not yet implemented.")
     
-    def write(self):
+    def write(self, time_step_state: TimeStepState):
         raise NotImplementedError("Not yet implemented.")

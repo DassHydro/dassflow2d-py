@@ -36,6 +36,9 @@ class Configuration:
     def getDeltaToWrite(self) -> float:
         raise NotImplementedError("Not yet implemented.")
     
+    def getResultFilePath(self) -> str:
+        raise NotImplementedError("Not yet implemented.")
+    
     def updateValues(values: dict[str, str]):
         raise NotImplementedError("Not yet implemented.")
 
