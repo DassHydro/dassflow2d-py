@@ -24,6 +24,18 @@ class Configuration:
     def getInitialStateFile(self) -> str:
         raise NotImplementedError("Not yet implemented.")
     
+    def getSimulationTime(self) -> float:
+        raise NotImplementedError("Not yet implemented.")
+    
+    def isDeltaAdaptative(self) -> bool:
+        raise NotImplementedError("Not yet implemented.")
+    
+    def getDelta(self) -> float:
+        raise NotImplementedError("Not yet implemented.")
+    
+    def getDeltaToWrite(self) -> float:
+        raise NotImplementedError("Not yet implemented.")
+    
     def updateValues(values: dict[str, str]):
         raise NotImplementedError("Not yet implemented.")
 

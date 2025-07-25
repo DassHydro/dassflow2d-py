@@ -60,6 +60,8 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
 
 
 from input.InitialStateReader import InitialStateReader
+from output.ResultWriter import ResultWriter
+import d2dtime.delta as dt
 
 def run_shallow_water_model(configuration: Configuration):
     """
@@ -71,21 +73,55 @@ def run_shallow_water_model(configuration: Configuration):
     :param Configuration configuration: Configuration of the launch
     :raises: NotImplementedError: This function is not implemented yet and will raise a NotImplementedError when called.
     """
+
+    ###################### Reading ########################
+
+    # Read mesh
     mesh_reader = get_mesh_reader(configuration)
     mesh_file = configuration.getMeshFile()
     incomplete_mesh = mesh_reader.read(mesh_file)
 
     mesh = incomplete_mesh.complete()
 
-    # Instantiate used resolution method based on parameters
-    resolution_method = get_resolution_method(configuration)
-
-    # Initialise first time step state
+    # Read first time step state
     initial_state_reader = InitialStateReader()
     initial_state_file = configuration.getInitialStateFile()
     initial_state = initial_state_reader.read(initial_state_file)
 
-    # TODO: Iterative call loop will go here
+    #################### Initialize #######################
+
+    # Instantiate used resolution method based on parameters
+    resolution_method = get_resolution_method(configuration)
+
+    # Initialize time variables
+    use_cfl = configuration.isDeltaAdaptative()
+    delta = configuration.getDelta() # used only if not adaptative
+    delta_to_write = configuration.getDeltaToWrite()
+
+    # Instantiate result writer
+    result_writer = ResultWriter(delta_to_write)
+
+    # Initialize runner variables
+    current_state = initial_state
+    simulation_time = configuration.getSimulationTime()
+    current_simulation_time = 0.0
+
+    ######################## Run ##########################
+
+    # Iterative call loop
+    while current_simulation_time < simulation_time:
+        # get time step
+        if use_cfl:
+            delta = dt.get_delta_using_cfl(current_state, mesh)
+
+        # resolve using resolution method
+        current_state = resolution_method.resolve(current_state, mesh)
+
+        current_simulation_time += delta
+
+        if result_writer.isTimeToWrite(current_simulation_time):
+
+            result_writer.write(current_state)
 
 
 import argparse
