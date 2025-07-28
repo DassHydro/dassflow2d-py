@@ -1,7 +1,7 @@
 # imports
-from input.Configuration import Configuration, load_from_file
-from input.MeshReader import MeshReader
-from mesh.Mesh import MeshType, MeshShape
+from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
+from fr.dasshydro.dassflow2d_py.input.MeshReader import MeshReader
+from fr.dasshydro.dassflow2d_py.mesh.Mesh import MeshType, MeshShape
 
 
 def get_mesh_reader(configuration: Configuration) -> MeshReader:
@@ -15,7 +15,7 @@ def get_mesh_reader(configuration: Configuration) -> MeshReader:
     mesh_type = configuration.getMeshType()
     if mesh_type == MeshType.DASSFLOW:
 
-        from input.DassflowMeshReader import DassflowMeshReader
+        from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
         return DassflowMeshReader()
     
     else:
@@ -23,7 +23,7 @@ def get_mesh_reader(configuration: Configuration) -> MeshReader:
         raise NotImplementedError("Not yet implemented.")
 
 
-from resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
+from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
 
 def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
     """
@@ -41,7 +41,7 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
         if spatial_scheme == SpatialScheme.FIRST:
 
             # TODO: configure euler time step here (porosity, infiltration...)
-            from resolution.EulerTimeStep import EulerTimeStep
+            from fr.dasshydro.dassflow2d_py.resolution.EulerTimeStep import EulerTimeStep
             return EulerTimeStep(configuration)
         
         elif spatial_scheme == SpatialScheme.MUSCL:
@@ -59,9 +59,9 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
             raise NotImplementedError("RK2 with MUSCL spatial scheme is not yet implemented.")
 
 
-from input.InitialStateReader import InitialStateReader
-from output.ResultWriter import ResultWriter
-import d2dtime.delta as dt
+from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
+from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
+import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
 
 def run_shallow_water_model(configuration: Configuration):
     """

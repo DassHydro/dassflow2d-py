@@ -9,8 +9,8 @@ class SpatialScheme(Enum):
     MUSCL = "muscl"
 
 from abc import ABC, abstractmethod
-from d2dtime.TimeStepState import TimeStepState
-from mesh.Mesh import Mesh
+from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
+from fr.dasshydro.dassflow2d_py.mesh.Mesh import Mesh
 
 class ResolutionMethod(ABC):
     @abstractmethod

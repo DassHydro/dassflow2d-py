@@ -1,4 +1,4 @@
-from d2dtime.TimeStepState import TimeStepState
+from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
 
 class ResultWriter:
     """

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from mesh.IncompleteMesh import IncompleteMesh
+from fr.dasshydro.dassflow2d_py.mesh.IncompleteMesh import IncompleteMesh
 
 class MeshReader(ABC):
     @abstractmethod

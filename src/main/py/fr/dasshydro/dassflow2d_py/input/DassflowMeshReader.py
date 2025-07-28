@@ -1,4 +1,4 @@
-from MeshReader import MeshReader
+from fr.dasshydro.dassflow2d_py.input.MeshReader import MeshReader
 
 class DassflowMeshReader(MeshReader):
 

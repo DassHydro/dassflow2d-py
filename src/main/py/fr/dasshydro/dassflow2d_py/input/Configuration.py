@@ -1,5 +1,5 @@
-from mesh.Mesh import MeshType, MeshShape
-from resolution.ResolutionMethod import TemporalScheme, SpatialScheme
+from fr.dasshydro.dassflow2d_py.mesh.Mesh import MeshType, MeshShape
+from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
 
 class Configuration:
 
@@ -39,7 +39,7 @@ class Configuration:
     def getResultFilePath(self) -> str:
         raise NotImplementedError("Not yet implemented.")
     
-    def updateValues(values: dict[str, str]):
+    def updateValues(self, values: dict[str, str]):
         raise NotImplementedError("Not yet implemented.")
 
 

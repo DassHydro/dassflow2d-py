@@ -1,5 +1,5 @@
-from ResolutionMethod import ResolutionMethod
-from input.Configuration import Configuration
+from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import ResolutionMethod
+from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
 
 class EulerTimeStep(ResolutionMethod):
 
