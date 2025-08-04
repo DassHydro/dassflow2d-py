@@ -1,4 +1,4 @@
-from mesh.Mesh import Mesh
+from fr.dasshydro.dassflow2d_py.mesh.Mesh import Mesh
 
 class IncompleteMesh:
 

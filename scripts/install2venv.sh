@@ -25,6 +25,10 @@ if [ $? -ne 0 ]; then # test exit code of previous command (to see if it failed)
     fi
 fi
 
+# Adds python execution environment variables
+echo "
+export PYTHONPATH=\"\$PYTHONPATH:src/main/py\"" >> .venv/bin/activate
+
 # Install all requirements
 source .venv/bin/activate
 echo -e "${CYN}INFO: Installing Requirements${RST} ..."
