@@ -16,6 +16,16 @@ from abc import ABC, abstractmethod
 class Vertex(ABC):
 
     @abstractmethod
+    def getID(self) -> int:
+        """
+        Get the id of the vertex
+
+        :return: id of the vertex
+        :rtype: int
+        """
+        pass
+
+    @abstractmethod
     def getCoordinates(self) -> tuple[float, float]:
         """
         Get the coordinates of the vertex.
@@ -37,6 +47,16 @@ class Vertex(ABC):
 
 
 class Cell(ABC):
+
+    @abstractmethod
+    def getID(self) -> int:
+        """
+        Get the id of the cell
+
+        :return: id of the cell
+        :rtype: int
+        """
+        pass
 
     @abstractmethod
     def getSurface(self) -> float:
@@ -131,6 +151,16 @@ class Cell(ABC):
 
 
 class Edge(ABC):
+
+    @abstractmethod
+    def getID(self) -> int:
+        """
+        Get the id of the edge
+
+        :return: id of the edge
+        :rtype: int
+        """
+        pass
 
     @abstractmethod
     def getVertices(self) -> list[Vertex]:
