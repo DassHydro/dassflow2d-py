@@ -79,9 +79,7 @@ def run_shallow_water_model(configuration: Configuration):
     # Read mesh
     mesh_reader = get_mesh_reader(configuration)
     mesh_file = configuration.getMeshFile()
-    incomplete_mesh = mesh_reader.read(mesh_file)
-
-    mesh = incomplete_mesh.complete()
+    mesh = mesh_reader.read(mesh_file)
 
     # Read first time step state
     initial_state_reader = InitialStateReader()
