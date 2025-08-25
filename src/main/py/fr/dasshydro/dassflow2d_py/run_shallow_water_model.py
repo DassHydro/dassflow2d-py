@@ -15,30 +15,19 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
     temporal_scheme = configuration.getTemporalScheme()
     spatial_scheme = configuration.getSpatialScheme()
 
-    if temporal_scheme == TemporalScheme.EULER:
+    if temporal_scheme == TemporalScheme.EULER and spatial_scheme == SpatialScheme.HLLC:
 
-        if spatial_scheme == SpatialScheme.FIRST:
-
-            # TODO: configure euler time step here (porosity, infiltration...)
-            from fr.dasshydro.dassflow2d_py.resolution.EulerTimeStep import EulerTimeStep
-            return EulerTimeStep(configuration)
+        # TODO: configure euler time step here (porosity, infiltration...)
+        from fr.dasshydro.dassflow2d_py.resolution.EulerTimeStep import EulerTimeStep
+        return EulerTimeStep(configuration)
         
-        elif spatial_scheme == SpatialScheme.MUSCL:
+    else:
 
-            raise NotImplementedError("Euler with MUSCL spatial scheme is not yet implemented.")
-        
-    elif temporal_scheme == TemporalScheme.RK2:
-
-        if spatial_scheme == SpatialScheme.FIRST:
-
-            raise NotImplementedError("RK2 with FIRST spatial scheme is not yet implemented.")
-        
-        elif spatial_scheme == SpatialScheme.MUSCL:
-            
-            raise NotImplementedError("RK2 with MUSCL spatial scheme is not yet implemented.")
+        raise NotImplementedError("As for now, only Euler with HLLC is supported.")
 
 
 from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
+from fr.dasshydro.dassflow2d_py.input.BathymetryReader import BathymetryReader
 from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
 import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
@@ -61,6 +50,10 @@ def run_shallow_water_model(configuration: Configuration):
     mesh_file = configuration.getMeshFile()
     mesh = mesh_reader.read(mesh_file)
 
+    # Read bathymetry
+    bathymetry_reader = BathymetryReader()
+    cell_bathymetry_function = bathymetry_reader.readCellBathymetry()
+
     # Read first time step state
     initial_state_reader = InitialStateReader()
     initial_state_file = configuration.getInitialStateFile()
@@ -70,6 +63,11 @@ def run_shallow_water_model(configuration: Configuration):
 
     # Instantiate used resolution method based on parameters
     resolution_method = get_resolution_method(configuration)
+
+    # Create bathymetry dictionary
+    bathymetry = {}
+    for cell in mesh.getCells():
+        bathymetry[cell] = cell_bathymetry_function(cell)
 
     # Initialize time variables
     use_cfl = configuration.isDeltaAdaptative()
@@ -94,7 +92,7 @@ def run_shallow_water_model(configuration: Configuration):
             delta = dt.get_delta_using_cfl(current_state, mesh)
 
         # resolve using resolution method
-        current_state = resolution_method.resolve(current_state, mesh)
+        current_state = resolution_method.resolve(current_state, delta, mesh, bathymetry)
 
         current_simulation_time += delta
 
