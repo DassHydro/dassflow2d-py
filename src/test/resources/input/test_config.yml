@@ -1,0 +1,11 @@
+temporal-scheme: euler
+spatial-scheme: muscl
+mesh-file: mesh_from_file.geo
+initial-state-file: dof_init_from_file.txt
+bathymetry-file: bathymetry_from_file.txt
+manning-file: manning_from_file.txt
+result-path: output_from_file/
+simulation-time: 86400
+delta-to-write: 500
+is-delta-adaptative: false
+default-delta: 0.001
