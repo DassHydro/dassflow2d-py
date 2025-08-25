@@ -1,28 +1,7 @@
 # imports
+
+
 from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
-from fr.dasshydro.dassflow2d_py.input.MeshReader import MeshReader
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import MeshType, MeshShape
-
-
-def get_mesh_reader(configuration: Configuration) -> MeshReader:
-    """
-    Decide what MeshReader to use based on mesh type
-
-    :param Configuration configuration: Configuration of the launch
-    :return: An instance of MeshReader configured for the specified mesh type
-    :rtype: MeshReader
-    """
-    mesh_type = configuration.getMeshType()
-    if mesh_type == MeshType.DASSFLOW:
-
-        from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-        return DassflowMeshReader()
-    
-    else:
-
-        raise NotImplementedError("Not yet implemented.")
-
-
 from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
 
 def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
@@ -59,6 +38,7 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
             raise NotImplementedError("RK2 with MUSCL spatial scheme is not yet implemented.")
 
 
+from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
 from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
 import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
@@ -77,7 +57,7 @@ def run_shallow_water_model(configuration: Configuration):
     ###################### Reading ########################
 
     # Read mesh
-    mesh_reader = get_mesh_reader(configuration)
+    mesh_reader = DassflowMeshReader()
     mesh_file = configuration.getMeshFile()
     incomplete_mesh = mesh_reader.read(mesh_file)
 
@@ -95,7 +75,7 @@ def run_shallow_water_model(configuration: Configuration):
 
     # Initialize time variables
     use_cfl = configuration.isDeltaAdaptative()
-    delta = configuration.getDelta() # used only if not adaptative
+    delta = configuration.getDefaultDelta() # used only if not adaptative
     delta_to_write = configuration.getDeltaToWrite()
 
     # Instantiate result writer
