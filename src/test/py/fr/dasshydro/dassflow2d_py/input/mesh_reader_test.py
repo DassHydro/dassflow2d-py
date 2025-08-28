@@ -2,6 +2,7 @@ import unittest
 import os
 import tempfile
 from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
+from fr.dasshydro.dassflow2d_py.mesh.Mesh import RawVertex, RawCell, RawInlet, RawOutlet
 
 class TestDassflowMeshReader(unittest.TestCase):
     def setUp(self):
@@ -9,14 +10,14 @@ class TestDassflowMeshReader(unittest.TestCase):
         self.test_mesh_content = """
             # mesh generated for testing DassflowMeshReader
             6 6 1.0
-            #Nodes||| id node, x coord, y coord, bathymetry
+            #Vertex||| id vertex, x coord, y coord, bathymetry
             1 0.0 0.0 0.0
             2 1.0 0.0 0.0
             3 2.0 0.0 0.0
             4 0.0 1.0 0.0
             5 1.0 1.0 0.0
             6 2.0 1.0 0.0
-            #cells||| id cell, id_node1, id_node2, id_node3, id_node4, patch_manning, bathymetry
+            #cells||| id cell, id_vertex1, id_vertex2, id_vertex3, id_vertex4, patch_manning, bathymetry
             1 1 2 5 4 1 0.
             2 2 3 6 5 1 0.
             3 1 4 5 2 1 0.
@@ -50,22 +51,24 @@ class TestDassflowMeshReader(unittest.TestCase):
 
         # Test vertices
         self.assertEqual(len(raw_vertices), 6)
-        self.assertEqual(raw_vertices[0], (1, 0.0, 0.0))
-        self.assertEqual(raw_vertices[1], (2, 1.0, 0.0))
-        self.assertEqual(raw_vertices[5], (6, 2.0, 1.0))
+        self.assertEqual(raw_vertices[0], RawVertex(1, 0.0, 0.0))
+        self.assertEqual(raw_vertices[1], RawVertex(2, 1.0, 0.0))
+        self.assertEqual(raw_vertices[5], RawVertex(6, 2.0, 1.0))
 
         # Test cells
         self.assertEqual(len(raw_cells), 6)
-        self.assertEqual(raw_cells[0], (1, 1, 2, 5, 4))
-        self.assertEqual(raw_cells[1], (2, 2, 3, 6, 5))
-        self.assertEqual(raw_cells[5], (6, 5, 2, 3, 6))
+        self.assertEqual(raw_cells[0], RawCell(1, 1, 2, 5, 4))
+        self.assertEqual(raw_cells[1], RawCell(2, 2, 3, 6, 5))
+        self.assertEqual(raw_cells[5], RawCell(6, 5, 2, 3, 6))
 
         # Test boundaries
         self.assertEqual(len(inlet), 2)
-        self.assertEqual(inlet, [1, 5])
+        self.assertEqual(inlet[0], RawInlet(1, 1, 1, 1.0))
+        self.assertEqual(inlet[1], RawInlet(5, 2, 1, 1.0))
 
         self.assertEqual(len(outlet), 2)
-        self.assertEqual(outlet, [2, 6])
+        self.assertEqual(outlet[0], RawOutlet(2, 1, 1, 1.0))
+        self.assertEqual(outlet[1], RawOutlet(6, 2, 1, 1.0))
 
     def test_vertex_coordinates(self):
         """Test that vertex coordinates are correctly read"""

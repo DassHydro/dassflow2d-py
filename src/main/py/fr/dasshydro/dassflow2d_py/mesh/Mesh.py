@@ -287,12 +287,27 @@ class RawVertex(NamedTuple):
 
 
 class RawCell(NamedTuple):
-    """Represents a cell with an id and it's connected nodes"""
+    """Represents a cell with an id and it's connected vertices"""
     id: int
-    node1: int
-    node2: int
-    node3: int
-    node4: int
+    vertex1: int
+    vertex2: int
+    vertex3: int
+    vertex4: int
+
+
+class RawInlet(NamedTuple):
+    """Represents an inlet with a target cell and edge, it's boundary type and ghost cell elevation"""
+    cell: int
+    edge: int
+    boundary_type: int
+    ghost_cell_bed_elevation: float
+
+class RawOutlet(NamedTuple):
+    """Represents an outlet with a target cell and edge, it's boundary type and ghost cell elevation"""
+    cell: int
+    edge: int
+    boundary_type: int
+    ghost_cell_bed_elevation: float
 
 
 class Mesh(ABC):
@@ -304,7 +319,7 @@ class Mesh(ABC):
     @abstractmethod
     def createFromPartialInformation(
         rawVertices: list[RawVertex], rawCells: list[RawCell],
-        inlet = list[int], outlet = list[int]
+        inlet = list[RawInlet], outlet = list[RawOutlet]
     ) -> 'Mesh':
         """
         Create a mesh from raw informations
