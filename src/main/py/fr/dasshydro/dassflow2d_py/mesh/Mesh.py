@@ -163,12 +163,12 @@ class Edge(ABC):
         pass
 
     @abstractmethod
-    def getVertices(self) -> list[Vertex]:
+    def getVertices(self) -> tuple[Vertex, Vertex]:
         """
-        Get the list of vertices associated with the edge.
+        Get the two vertices associated with the edge.
 
-        :return: list of vertices of the edge
-        :rtype: list[Vertex]
+        :return: tuple of the two vertices of the edge
+        :rtype: tuple[Vertex, Vertex]
         """
         pass
 
@@ -192,12 +192,12 @@ class Edge(ABC):
         pass
 
     @abstractmethod
-    def getCells(self) -> list[Cell]:
+    def getCells(self) -> tuple[Cell, Cell]:
         """
-        Get the list of cells associated with the edge.
+        Get the two cells associated with the edge.
 
-        :return: list of cells associated with the edge
-        :rtype: list[Cell]
+        :return: tuple of the two cells associated with the edge
+        :rtype: tuple[Cell, Cell]
         """
         pass
 
