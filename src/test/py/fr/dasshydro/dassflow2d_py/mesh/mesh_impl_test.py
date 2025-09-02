@@ -90,17 +90,24 @@ class TestMeshImpl(unittest.TestCase):
             expected_boundary_value = self.oracle_data['cells'][cell.getID()][2]
             self.assertEqual(expected_boundary_value, cell.isBoundary())
 
-    # TODO: refactor to abstract magic values to oracle
     def testEdgeProperties(self):
+        # build expected boundaries dictionary
+        expected_boundaries = {
+            # split the key string into a tuple of IDs (int)
+            tuple(sorted(map(int, key.split(", ")))):
+            value
+            for key, value in self.oracle_data['edges'].items()
+        }
+
         for edge in self.mesh.getEdges():
-            # generic properties
+            ### Geometric properties
             edge_vertex1, edge_vertex2 = edge.getVertices()
             ev1_x, ev1_y = edge_vertex1.getCoordinates()
             ev2_x, ev2_y = edge_vertex2.getCoordinates()
             self.assertAlmostEqual(edge.getCenter()[0], (ev1_x + ev2_x)/2)
             self.assertAlmostEqual(edge.getCenter()[1], (ev1_y + ev2_y)/2)
             self.assertAlmostEqual(edge.getLength(), sqrt((ev2_x - ev1_x)**2 + (ev2_y - ev1_y)**2))
-            # _ normal vector
+            # normal vector
             vertices_vector = (ev2_x - ev1_x, ev2_y - ev1_y)
             normal_vector = edge.getNormalVector()
             dot_product = vertices_vector[0] * normal_vector[0] + vertices_vector[1] * normal_vector[1]
@@ -111,21 +118,21 @@ class TestMeshImpl(unittest.TestCase):
             dot_product = direction_vector[0] * normal_vector[0] + direction_vector[1] * normal_vector[1]
             self.assertGreater(dot_product, 0, msg="le vecteur normal doit avoir le bon sens (de gauche à droite)")
             self.assertAlmostEqual(sqrt(normal_vector[0]**2 + normal_vector[1]**2), 1, places=6, msg="le vecteur normal doit être unitaire")
-            # _ flux direction vector
+            # flux direction vector
             cell1_center = edge.getCells()[0].getGravityCenter()
             cell2_center = edge.getCells()[1].getGravityCenter()
             expected_flux_vector = (cell2_center[0] - cell1_center[0], cell2_center[1] - cell1_center[1])
             self.assertAlmostEqual(edge.getFluxDirectionVector()[0], expected_flux_vector[0])
             self.assertAlmostEqual(edge.getFluxDirectionVector()[1], expected_flux_vector[1])
-            # _ vector to cell
+            # vector to cell
             edge_center = edge.getCenter()
-            for cell in self.cells_list:
+            for cell in self.mesh.getCells():
                 vector_to_cell = edge.getVectorToCellCenter(cell)
                 cell_center = cell.getGravityCenter()
                 displaced_edge_center = (edge_center[0] + vector_to_cell[0], edge_center[1] + vector_to_cell[1])
                 self.assertAlmostEqual(displaced_edge_center[0], cell_center[0])
                 self.assertAlmostEqual(displaced_edge_center[1], cell_center[1])
-            # specific properties
+            ### Boundary specific properties
             cell1, cell2 = edge.getCells()
             self.assertNotEqual(cell1, cell2)
             self.assertFalse(cell1.isGhost() and cell2.isGhost())
@@ -134,6 +141,11 @@ class TestMeshImpl(unittest.TestCase):
                 self.assertTrue(edge.isBoundary())
             else:
                 self.assertFalse(edge.isBoundary())
+            ### check correct boundary
+            edge_vertices_id = (edge_vertex1.getID(), edge_vertex2.getID())
+            edge_key = tuple(sorted(edge_vertices_id))
+            expected_boundary_value = expected_boundaries[edge_key]
+            self.assertEqual(expected_boundary_value, edge.isBoundary())
 
     def testBoundary(self):
         boundary_oracles = self.oracle_data['boundaries']
@@ -143,7 +155,7 @@ class TestMeshImpl(unittest.TestCase):
         # build expected boundaries dictionary
         expected_boundaries = {
             # split the key string into a tuple of IDs (int)
-            tuple(map(int, key.split(", "))):
+            tuple(sorted(map(int, key.split(", ")))):
             # convert the string value to the corresponding BoundaryType
             BoundaryType(value)
             for key, value in boundary_oracles.items()
