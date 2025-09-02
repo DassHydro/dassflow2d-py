@@ -9,7 +9,7 @@ class TestDassflowMeshReader(unittest.TestCase):
         # Create a temporary mesh file for testing
         self.test_mesh_content = """
             # mesh generated for testing DassflowMeshReader
-            6 6 1.0
+            6 4 1.0
             #Vertex||| id vertex, x coord, y coord, bathymetry
             1 0.0 0.0 0.0
             2 1.0 0.0 0.0
@@ -18,19 +18,15 @@ class TestDassflowMeshReader(unittest.TestCase):
             5 1.0 1.0 0.0
             6 2.0 1.0 0.0
             #cells||| id cell, id_vertex1, id_vertex2, id_vertex3, id_vertex4, patch_manning, bathymetry
-            1 1 2 5 4 1 0.
-            2 2 3 6 5 1 0.
-            3 1 4 5 2 1 0.
-            4 2 5 6 3 1 0.
-            5 4 1 2 5 1 0.
-            6 5 2 3 6 1 0.
+            1 1 2 5 1 1 0.
+            2 2 3 6 2 1 0.
+            3 1 4 5 1 1 0.
+            4 2 5 6 2 1 0.
             # boundaries
-            INLET 2 1
-            1 1 1 1 1
-            5 2 1 1 1
-            OUTLET 2 1
+            INLET 1 1
+            3 1 1 1 1
+            OUTLET 1 1
             2 1 1 1 1
-            6 2 1 1 1
         """
 
         # Create a temporary file
@@ -56,19 +52,17 @@ class TestDassflowMeshReader(unittest.TestCase):
         self.assertEqual(raw_vertices[5], RawVertex(6, 2.0, 1.0))
 
         # Test cells
-        self.assertEqual(len(raw_cells), 6)
-        self.assertEqual(raw_cells[0], RawCell(1, 1, 2, 5, 4))
-        self.assertEqual(raw_cells[1], RawCell(2, 2, 3, 6, 5))
-        self.assertEqual(raw_cells[5], RawCell(6, 5, 2, 3, 6))
+        self.assertEqual(len(raw_cells), 4)
+        self.assertEqual(raw_cells[0], RawCell(1, 1, 2, 5, 1))
+        self.assertEqual(raw_cells[1], RawCell(2, 2, 3, 6, 2))
+        self.assertEqual(raw_cells[3], RawCell(4, 2, 5, 6, 2))
 
         # Test boundaries
-        self.assertEqual(len(inlet), 2)
-        self.assertEqual(inlet[0], RawInlet(1, 1, 1, 1.0))
-        self.assertEqual(inlet[1], RawInlet(5, 2, 1, 1.0))
+        self.assertEqual(len(inlet), 1)
+        self.assertEqual(inlet[0], RawInlet(3, 1, 1, 1.0))
 
-        self.assertEqual(len(outlet), 2)
+        self.assertEqual(len(outlet), 1)
         self.assertEqual(outlet[0], RawOutlet(2, 1, 1, 1.0))
-        self.assertEqual(outlet[1], RawOutlet(6, 2, 1, 1.0))
 
     def test_vertex_coordinates(self):
         """Test that vertex coordinates are correctly read"""
@@ -87,9 +81,9 @@ class TestDassflowMeshReader(unittest.TestCase):
         _, raw_cells, _, _ = self.reader.read(self.temp_file.name)
 
         # Check connectivity of specific cells
-        self.assertEqual(raw_cells[0], (1, 1, 2, 5, 4))  # Cell 1
-        self.assertEqual(raw_cells[1], (2, 2, 3, 6, 5))  # Cell 2
-        self.assertEqual(raw_cells[4], (5, 4, 1, 2, 5))  # Cell 5
+        self.assertEqual(raw_cells[0], (1, 1, 2, 5, 1))  # Cell 1
+        self.assertEqual(raw_cells[1], (2, 2, 3, 6, 2))  # Cell 2
+        self.assertEqual(raw_cells[3], (4, 2, 5, 6, 2))  # Cell 5
 
     def test_triangular_cells(self):
         """Test handling of triangular cells (where node4 = node1)"""
