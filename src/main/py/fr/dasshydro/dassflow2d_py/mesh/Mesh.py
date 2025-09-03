@@ -319,8 +319,10 @@ class Mesh(ABC):
     @staticmethod
     @abstractmethod
     def createFromPartialInformation(
-        rawVertices: list[RawVertex], rawCells: list[RawCell],
-        inlet = list[RawInlet], outlet = list[RawOutlet]
+        rawVertices: Iterable[RawVertex],
+        rawCells: Iterable[RawCell],
+        inlet: Iterable[RawInlet],
+        outlet: Iterable[RawOutlet]
     ) -> 'Mesh':
         """
         Create a mesh from raw informations

@@ -1,5 +1,6 @@
 from fr.dasshydro.dassflow2d_py.mesh.Mesh import *
 import math
+from typing import cast, Iterable
 
 
 # --- Global Helper Functions ---
@@ -132,7 +133,7 @@ class CellImpl(Cell):
 
 class GhostCell(Cell):
 
-    def __init__(self, cell: Cell):
+    def __init__(self, cell: CellImpl):
         self.cell = cell
 
     def getID(self) -> int:
@@ -286,7 +287,7 @@ class BoundaryImpl(Boundary):
 
 # --- Mesh Helper Functions ---
 
-def _create_partial_vertices_dict(rawVertices: list[RawVertex]) -> dict[int, VertexImpl]:
+def _create_partial_vertices_dict(rawVertices: Iterable[RawVertex]) -> dict[int, Vertex]:
     """
     Creates a dictionary mapping vertex IDs to partial Vertex objects.
     Created Vertices are partial as they lack coherence on the 'isBoundary' method
@@ -302,7 +303,8 @@ def _create_partial_vertices_dict(rawVertices: list[RawVertex]) -> dict[int, Ver
         for v in rawVertices
     }
 
-def _create_partial_cells(rawCells: list[RawCell], vertices_dict: dict[int, VertexImpl]) -> list[Cell]:
+
+def _create_partial_cells(rawCells: Iterable[RawCell], vertices_dict: dict[int, Vertex]) -> list[Cell]:
     """
     Creates a list of partial Cell objects from raw cell data.
     Created Cells are partial as they lack coherence on 'getEdges', 'getNeighbors', and 'isBoundary' methods
@@ -314,11 +316,12 @@ def _create_partial_cells(rawCells: list[RawCell], vertices_dict: dict[int, Vert
     Returns:
         A list of Cell objects.
     """
-    cells: list[CellImpl] = []
+    cells: list[Cell] = []
 
     for raw_cell in rawCells:
+        
         # build cell's vertices list
-        cell_vertices = [
+        cell_vertices: list[Vertex] = [
             vertices_dict[raw_cell.vertex1],
             vertices_dict[raw_cell.vertex2],
             vertices_dict[raw_cell.vertex3],
@@ -341,7 +344,8 @@ def _create_partial_cells(rawCells: list[RawCell], vertices_dict: dict[int, Vert
 
     return cells
 
-def _create_partial_edges(cells: list[Cell], vertices_dict: dict[int, VertexImpl]) -> list[Edge]:
+
+def _create_partial_edges(cells: list[Cell], vertices_dict: dict[int, Vertex]) -> list[Edge]:
     """
     Creates a list of partial Edge objects from cell and vertex informations.
     Created Edges are partial as they lack coherence on the 'getCells' method
@@ -353,25 +357,30 @@ def _create_partial_edges(cells: list[Cell], vertices_dict: dict[int, VertexImpl
     Returns:
         A list of Edge objects.
     """
-    edges: list[EdgeImpl] = []
+    edges: list[Edge] = []
     # counter to assign different IDs to each edge
     edge_id = 1
     # keeps track of what tuple of int*int already exists as an partial Edge object (avoid edge duplication)
-    edge_map: dict[tuple[int, int], EdgeImpl] = {}
+    edge_map = {}
 
     for cell in cells:
+
         # build array of possible tuple of vertex IDs that can lead to an edge
         possible_edges = []
         for i in range(cell.getVerticesNumber()):
             for j in range(i + 1, cell.getVerticesNumber()):
+                cell = cast(CellImpl, cell)
                 vertex1 = cell.getVertices()[i]
                 vertex2 = cell.getVertices()[j]
                 possible_edges.append((vertex1.getID(), vertex2.getID()))
 
         for possible_edge in possible_edges:
+
             edge_key = tuple(sorted(possible_edge))
+            
             # verify if this tuple of vertex IDs already led to the creation of a partial Edge object
             if edge_key not in edge_map:
+
                 # if not, create it
                 edge = EdgeImpl(
                     id=edge_id,
@@ -383,7 +392,9 @@ def _create_partial_edges(cells: list[Cell], vertices_dict: dict[int, VertexImpl
                 edge_id += 1
                 # and update the dictionary to not create it again
                 edge_map[edge_key] = edge
+
             else:
+
                 # if not, that means that this edge is the connection between two cells
                 edge = edge_map[edge_key]
                 edge.setCells((edge.getCells()[0], cell))
@@ -391,7 +402,8 @@ def _create_partial_edges(cells: list[Cell], vertices_dict: dict[int, VertexImpl
 
     return edges
 
-def _create_boundaries(edges: list[EdgeImpl]) -> list[BoundaryImpl]:
+
+def _create_boundaries(edges: list[Edge]) -> list[Boundary]:
     """
     Creates boundaries for boundary edges and resolve coherence around target edge
 
@@ -401,24 +413,33 @@ def _create_boundaries(edges: list[EdgeImpl]) -> list[BoundaryImpl]:
     Returns:
         A list of Boundary objects.
     """
-    boundaries: list[BoundaryImpl] = []
+    boundaries: list[Boundary] = []
 
     for edge in edges:
+
         if edge.isBoundary():
+
+            edge = cast(EdgeImpl, edge)
             # Create boundary object
             boundary = BoundaryImpl(edge, BoundaryType.WALL)
             boundaries.append(boundary)
             # Make boundary surround objects coherent
             # _ boundary flags
             real_cell = edge.getCells()[0]
+            real_cell = cast(CellImpl, real_cell)
             real_cell.setBoundary(True)
+
             for edge_vertex in edge.getVertices():
+
+                edge_vertex = cast(VertexImpl, edge_vertex)
                 edge_vertex.setBoundary(True)
+
             # _ ghost cell
             ghost_cell = GhostCell(real_cell)
             edge.setCells((edge.getCells()[0], ghost_cell))
 
     return boundaries
+
 
 def _add_cell_edges(edges: list[Edge]):
     """
@@ -427,10 +448,16 @@ def _add_cell_edges(edges: list[Edge]):
     Args:
         edges: List of Edge objects.
     """
+
     for edge in edges:
+
         for cell in edge.getCells():
+
             if not cell.isGhost():
+
+                cell = cast(CellImpl, cell)
                 cell.getEdges().append(edge)
+
 
 def _add_neighbors_to_cells(cells: list[Cell]):
     """
@@ -439,19 +466,25 @@ def _add_neighbors_to_cells(cells: list[Cell]):
     Args:
         cells: List of Cell objects.
     """
+
     for cell in cells:
         # for each cells, explore their neighbors using edges
+
+        cell = cast(CellImpl, cell)
+
         for cell_edge in cell.getEdges():
+
             edge_cell1, edge_cell2 = cell_edge.getCells()
             assert edge_cell1 != edge_cell2 # assume that edges are coherent on 'getCells' method
             other_cell = edge_cell1 if edge_cell2 == cell else edge_cell2
             cell.getNeighbors().append(other_cell)
 
+
 def _process_inlets_and_outlets(
     cells: list[Cell],
     boundaries: list[Boundary],
-    inlets: list[RawInlet],
-    outlets: list[RawOutlet]
+    inlets: Iterable[RawInlet],
+    outlets: Iterable[RawOutlet]
 ):
     """
     Processes inlets and outlets, setting correct boundary type to corresponding Boundary object.
@@ -468,26 +501,37 @@ def _process_inlets_and_outlets(
     # allows to search for a Cell object using it's ID
     cells_dict = {cell.getID(): cell for cell in cells}
     # allow to search for a Boundary object using it's target edge
-    boundary_edge_dict: dict[Edge, BoundaryImpl] = {boundary.getEdge(): boundary for boundary in boundaries}
+    boundary_edge_dict: dict[Edge, Boundary] = {boundary.getEdge(): boundary for boundary in boundaries}
 
     # function to process generic raw inlet/outlet
     def process_boundary_update(boundary_list, type_to_set: BoundaryType):
+
         for raw_boundary in boundary_list:
+
             target_cell = cells_dict[raw_boundary.cell]
+            # casting to use 'getEdges' method as returning a list (indexable) instead of an Iterable
+            target_cell = cast(CellImpl, target_cell) 
             edge_index = raw_boundary.edge - 1 # because mesh.geo is 1-based, not 0-based
             target_edge = target_cell.getEdges()[edge_index]
-            target_boundary = boundary_edge_dict.get(target_edge)
             # this can fail as resolving target edge using index in Cell#getEdges() is a naive approach
+            target_boundary = boundary_edge_dict.get(target_edge)
+            
             if target_boundary is None:
+
                 # this print should be replaced with a proper logging method
                 print(f"Warning: Target edge of inlet {raw_boundary.cell} is not a boundary edge.")
+
             else:
+
+                # casting to use 'setType' method
+                target_boundary = cast(BoundaryImpl, target_boundary)
                 target_boundary.setType(type_to_set)
 
     # process inlets
     process_boundary_update(inlets, BoundaryType.INFLOW)
     # process outlets
     process_boundary_update(outlets, BoundaryType.OUTFLOW)
+
 
 class MeshImpl(Mesh):
     """
@@ -507,10 +551,10 @@ class MeshImpl(Mesh):
 
     @staticmethod
     def createFromPartialInformation(
-        rawVertices: list[RawVertex],
-        rawCells: list[RawCell],
-        inlets: list[RawInlet],
-        outlets: list[RawOutlet]
+        rawVertices: Iterable[RawVertex],
+        rawCells: Iterable[RawCell],
+        inlets: Iterable[RawInlet],
+        outlets: Iterable[RawOutlet]
     ) -> Mesh:
         """
         Creates a Mesh object from raw vertex, cell, inlet, and outlet data.

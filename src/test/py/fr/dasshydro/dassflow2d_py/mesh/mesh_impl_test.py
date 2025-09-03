@@ -21,8 +21,8 @@ class TestMeshImpl(unittest.TestCase):
         with open(self.oracle_path, 'r') as file:
             self.oracle_data = yaml.safe_load(file)
         # Set test variables
-        self.raw_vertices: list[RawVertex] = raw_vertices
-        self.raw_cells: list[RawCell] = raw_cells
+        self.raw_vertices = raw_vertices
+        self.raw_cells = raw_cells
         self.raw_inlets = raw_inlets
         self.raw_outlets = raw_outlets
 
@@ -161,7 +161,7 @@ class TestMeshImpl(unittest.TestCase):
             for key, value in boundary_oracles.items()
         }
         # build actual boundaries dictionary
-        actual_boundaries: dict[tuple[int, int], Boundary] = {}
+        actual_boundaries = {}
         for boundary in self.mesh.getBoundaries():
             edge = boundary.getEdge()
             vertex1, vertex2 = edge.getVertices()
