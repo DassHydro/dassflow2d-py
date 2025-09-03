@@ -289,11 +289,12 @@ class MeshImpl(Mesh):
         cells: list[Cell] = []
         for raw_cell in rawCells:
             # Get the vertices for this cell using their IDs
-            cell_vertices = set()
-            cell_vertices.add(vertices_dict[raw_cell.vertex1])
-            cell_vertices.add(vertices_dict[raw_cell.vertex2])
-            cell_vertices.add(vertices_dict[raw_cell.vertex3])
-            cell_vertices.add(vertices_dict[raw_cell.vertex4])
+            cell_vertices = []
+            cell_vertices.append(vertices_dict[raw_cell.vertex1])
+            cell_vertices.append(vertices_dict[raw_cell.vertex2])
+            cell_vertices.append(vertices_dict[raw_cell.vertex3])
+            if raw_cell.vertex4 != 0 and (raw_cell.vertex1 != raw_cell.vertex4):
+                cell_vertices.append(vertices_dict[raw_cell.vertex4])
             # Create the cell
             cell = CellImpl(
                 id=raw_cell.id,
@@ -374,12 +375,14 @@ class MeshImpl(Mesh):
         for raw_inlet in inlets:
             target_cell = cells_dict[raw_inlet.cell]
             edge_index = raw_inlet.edge-1
+            target_edges = [(e.getVertices()[0].getID(), e.getVertices()[1].getID()) for e in target_cell.getEdges()]
             target_edge = target_cell.getEdges()[edge_index]
             target_boundary = boundary_edge_dict.get(target_edge)
             if target_boundary is None:
                 print("Warning: target edge of an inflow is not a boundary edge")
             else:
                 target_boundary.setType(BoundaryType.INFLOW)
+
         # OUTLET
         for raw_outlet in outlets:
             target_cell = cells_dict[raw_outlet.cell]
