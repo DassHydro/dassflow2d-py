@@ -277,10 +277,57 @@ class Boundary(ABC):
         pass
 
 
+from typing import NamedTuple
+
+class RawVertex(NamedTuple):
+    """Represents a vertex with an id and 2D coordinates."""
+    id: int
+    x_coord: float
+    y_coord: float
+
+
+class RawCell(NamedTuple):
+    """Represents a cell with an id and it's connected vertices"""
+    id: int
+    vertex1: int
+    vertex2: int
+    vertex3: int
+    vertex4: int
+
+
+class RawInlet(NamedTuple):
+    """Represents an inlet with a target cell and edge, it's boundary type and ghost cell elevation"""
+    cell: int
+    edge: int
+    boundary_type: int
+    ghost_cell_bed_elevation: float
+
+class RawOutlet(NamedTuple):
+    """Represents an outlet with a target cell and edge, it's boundary type and ghost cell elevation"""
+    cell: int
+    edge: int
+    boundary_type: int
+    ghost_cell_bed_elevation: float
+
+
 class Mesh(ABC):
     """
     Represent a geometric mesh, defining the simulation space
     """
+
+    @staticmethod
+    @abstractmethod
+    def createFromPartialInformation(
+        rawVertices: list[RawVertex], rawCells: list[RawCell],
+        inlet = list[RawInlet], outlet = list[RawOutlet]
+    ) -> 'Mesh':
+        """
+        Create a mesh from raw informations
+
+        :return: Associated completed mesh
+        :rtype: Mesh
+        """
+        pass
 
     @abstractmethod
     def getSurface(self) -> float:
