@@ -1,24 +1,8 @@
 from fr.dasshydro.dassflow2d_py.mesh.Mesh import *
+import math
 
-class VertexImpl(Vertex):
 
-    def __init__(self, id: int, coordinates: tuple[float, float], isBoundary: bool):
-        self.id = id
-        self.coordinates = coordinates
-        self.boundary = isBoundary
-
-    def getID(self) -> int:
-        return self.id
-
-    def getCoordinates(self) -> tuple[float, float]:
-        return self.coordinates
-
-    def isBoundary(self) -> bool:
-        return self.boundary
-
-    def setBoundary(self, isBoundary: bool):
-        self.boundary = isBoundary
-
+# --- Global Helper Functions ---
 
 def _gauss_area_formula(vertices: list[tuple[float, float]]):
     """
@@ -38,8 +22,6 @@ def _gauss_area_formula(vertices: list[tuple[float, float]]):
         x_j, y_j = vertices[(i + 1) % n]
         area += (x_i * y_j) - (x_j * y_i)
     return abs(area) / 2.0
-
-import math
 
 def _polygon_perimeter(vertices):
     """
@@ -73,6 +55,26 @@ def _polygon_center(vertices):
         sum(x for x, _ in vertices) / len(vertices),
         sum(y for _, y in vertices) / len(vertices)
     )
+
+
+class VertexImpl(Vertex):
+
+    def __init__(self, id: int, coordinates: tuple[float, float], isBoundary: bool):
+        self.id = id
+        self.coordinates = coordinates
+        self.boundary = isBoundary
+
+    def getID(self) -> int:
+        return self.id
+
+    def getCoordinates(self) -> tuple[float, float]:
+        return self.coordinates
+
+    def isBoundary(self) -> bool:
+        return self.boundary
+
+    def setBoundary(self, isBoundary: bool):
+        self.boundary = isBoundary
 
 
 class CellImpl(Cell):
@@ -109,7 +111,7 @@ class CellImpl(Cell):
     def getVerticesNumber(self) -> int:
         return self.verticesNumber
 
-    def  getEdges(self) -> list[Edge]:
+    def getEdges(self) -> list[Edge]:
         return self.edges
 
     def getNeighbors(self) -> list[Cell]:
@@ -164,27 +166,6 @@ class GhostCell(Cell):
         return True
 
 
-def _get_normal_vector(a: tuple[float, float], b: tuple[float, float], p: tuple[float, float]):
-    cross = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
-    if cross == 0:
-        raise ValueError("p cannot be collinear with segment AB")
-    isLeft = cross > 0
-    normal_vector = (b[0] - a[0], b[1] - a[1])
-    if isLeft:
-        # turn AB vector to the right
-        normal_vector = (normal_vector[1], -normal_vector[0])
-    else:
-        # so it's right
-        # turn AB vector to the left
-        normal_vector = (-normal_vector[1], normal_vector[0])
-    # normalize
-    magnitude = math.sqrt(normal_vector[0]**2 + normal_vector[1]**2)
-    if magnitude == 0:
-        return (0, 0)  # Avoid division by zero
-    normal_vector = (normal_vector[0] / magnitude, normal_vector[1] / magnitude)
-    return normal_vector
-
-
 class EdgeImpl(Edge):
 
     def __init__(self, id: int, vertices: tuple[Vertex, Vertex], cells: tuple[Cell, Cell], isBoundary: bool):
@@ -198,7 +179,51 @@ class EdgeImpl(Edge):
         x_0, y_0 = tuple_of_coordinates[0]
         x_1, y_1 = tuple_of_coordinates[1]
         self.length = math.sqrt((x_1 - x_0)**2 + (y_1 - y_0)**2)
-        self.normalVector = _get_normal_vector(vertices[0].getCoordinates(), vertices[1].getCoordinates(), cells[0].getGravityCenter())
+        self.normalVector = self._create_normal_vector(vertices[0].getCoordinates(), vertices[1].getCoordinates(), cells[0].getGravityCenter())
+    
+    # --- Private Methods ---
+
+    def _create_normal_vector(
+        self,
+        a: tuple[float, float],
+        b: tuple[float, float],
+        p: tuple[float, float]
+    ) -> tuple[float, float]:
+        """
+        Creates a 2D vector representing the normal vector of the current edge.
+        The edge normal vector is defined as the normal vector that faces away from the first cell in 'Edge#getCells()'
+
+        Args:
+            a (tuple[float, float]): one vertex of the edge
+            b (tuple[float, float]): other vertex of the edge
+            p (tuple[float, float]): a point in the cell to avoid
+
+        Raises:
+            ValueError: if p is colinear with a and b
+
+        Returns:
+            tuple[float, float]: the normal vector of the edge
+        """
+        cross = (b[0] - a[0]) * (p[1] - a[1]) - (b[1] - a[1]) * (p[0] - a[0])
+        if cross == 0:
+            raise ValueError("p cannot be collinear with segment AB")
+        isLeft = cross > 0
+        normal_vector = (b[0] - a[0], b[1] - a[1])
+        if isLeft:
+            # turn AB vector to the right
+            normal_vector = (normal_vector[1], -normal_vector[0])
+        else:
+            # so it's right
+            # turn AB vector to the left
+            normal_vector = (-normal_vector[1], normal_vector[0])
+        # normalizing step
+        magnitude = math.sqrt(normal_vector[0]**2 + normal_vector[1]**2)
+        if magnitude == 0:
+            return (0, 0)  # Avoid division by zero
+        normal_vector = (normal_vector[0] / magnitude, normal_vector[1] / magnitude)
+        return normal_vector
+
+    # --- End of Private ---
 
     def getID(self) -> int:
         return self.id
@@ -235,6 +260,9 @@ class EdgeImpl(Edge):
     def isBoundary(self) -> bool:
         return self.boundary
 
+    def setBoundary(self, isBoundary):
+        self.boundary = isBoundary
+
 
 class BoundaryImpl(Boundary):
     """
@@ -252,9 +280,214 @@ class BoundaryImpl(Boundary):
     def getType(self) -> BoundaryType:
         return self.type
 
-    def setType(self, boundaryType: BoundaryType):
+    def setType(self, boundaryType):
         self.type = boundaryType
 
+
+# --- Mesh Helper Functions ---
+
+def _create_partial_vertices_dict(rawVertices: list[RawVertex]) -> dict[int, VertexImpl]:
+    """
+    Creates a dictionary mapping vertex IDs to partial Vertex objects.
+    Created Vertices are partial as they lack coherence on the 'isBoundary' method
+
+    Args:
+        rawVertices: List of raw vertex data.
+
+    Returns:
+        A dictionary mapping vertex IDs to Vertex objects.
+    """
+    return {
+        v.id: VertexImpl(v.id, (v.x_coord, v.y_coord), False)
+        for v in rawVertices
+    }
+
+def _create_partial_cells(rawCells: list[RawCell], vertices_dict: dict[int, VertexImpl]) -> list[Cell]:
+    """
+    Creates a list of partial Cell objects from raw cell data.
+    Created Cells are partial as they lack coherence on 'getEdges', 'getNeighbors', and 'isBoundary' methods
+
+    Args:
+        rawCells: List of raw cell data.
+        vertices_dict: Dictionary mapping vertex IDs to Vertex objects.
+
+    Returns:
+        A list of Cell objects.
+    """
+    cells: list[CellImpl] = []
+
+    for raw_cell in rawCells:
+        # build cell's vertices list
+        cell_vertices = [
+            vertices_dict[raw_cell.vertex1],
+            vertices_dict[raw_cell.vertex2],
+            vertices_dict[raw_cell.vertex3],
+        ]
+        # _ don't add fourth element if it comply with at least one method of nullification
+        # i.e. that means that the fourth vertex don't represent a vertex but the end of the vertices list
+        # in the case of a triangular cell
+        if raw_cell.vertex4 != 0 and (raw_cell.vertex1 != raw_cell.vertex4):
+            cell_vertices.append(vertices_dict[raw_cell.vertex4])
+
+        cell = CellImpl(
+            id=raw_cell.id,
+            vertices=cell_vertices,
+            edges=[],                 # non-coherent (populated later)
+            neighbors=[],             # non-coherent (populated later)
+            isBoundary=False,         # non-coherent (corrected later)
+            isGhost=False,
+        )
+        cells.append(cell)
+
+    return cells
+
+def _create_partial_edges(cells: list[Cell], vertices_dict: dict[int, VertexImpl]) -> list[Edge]:
+    """
+    Creates a list of partial Edge objects from cell and vertex informations.
+    Created Edges are partial as they lack coherence on the 'getCells' method
+
+    Args:
+        cells: List of Cell objects.
+        vertices_dict: Dictionary mapping vertex IDs to Vertex objects.
+
+    Returns:
+        A list of Edge objects.
+    """
+    edges: list[EdgeImpl] = []
+    # counter to assign different IDs to each edge
+    edge_id = 1
+    # keeps track of what tuple of int*int already exists as an partial Edge object (avoid edge duplication)
+    edge_map: dict[tuple[int, int], EdgeImpl] = {}
+
+    for cell in cells:
+        # build array of possible tuple of vertex IDs that can lead to an edge
+        possible_edges = []
+        for i in range(cell.getVerticesNumber()):
+            for j in range(i + 1, cell.getVerticesNumber()):
+                vertex1 = cell.getVertices()[i]
+                vertex2 = cell.getVertices()[j]
+                possible_edges.append((vertex1.getID(), vertex2.getID()))
+
+        for possible_edge in possible_edges:
+            edge_key = tuple(sorted(possible_edge))
+            # verify if this tuple of vertex IDs already led to the creation of a partial Edge object
+            if edge_key not in edge_map:
+                # if not, create it
+                edge = EdgeImpl(
+                    id=edge_id,
+                    vertices=(vertices_dict[possible_edge[0]], vertices_dict[possible_edge[1]]),
+                    cells=(cell, cell),
+                    isBoundary=True,
+                )
+                edges.append(edge)
+                edge_id += 1
+                # and update the dictionary to not create it again
+                edge_map[edge_key] = edge
+            else:
+                # if not, that means that this edge is the connection between two cells
+                edge = edge_map[edge_key]
+                edge.setCells((edge.getCells()[0], cell))
+                edge.setBoundary(False)
+
+    return edges
+
+def _create_boundaries(edges: list[EdgeImpl]) -> list[BoundaryImpl]:
+    """
+    Creates boundaries for boundary edges and resolve coherence around target edge
+
+    Args:
+        edges: List of Edge objects.
+
+    Returns:
+        A list of Boundary objects.
+    """
+    boundaries: list[BoundaryImpl] = []
+
+    for edge in edges:
+        if edge.isBoundary():
+            # Create boundary object
+            boundary = BoundaryImpl(edge, BoundaryType.WALL)
+            boundaries.append(boundary)
+            # Make boundary surround objects coherent
+            # _ boundary flags
+            real_cell = edge.getCells()[0]
+            real_cell.setBoundary(True)
+            for edge_vertex in edge.getVertices():
+                edge_vertex.setBoundary(True)
+            # _ ghost cell
+            ghost_cell = GhostCell(real_cell)
+            edge.setCells((edge.getCells()[0], ghost_cell))
+
+    return boundaries
+
+def _add_cell_edges(edges: list[Edge]):
+    """
+    Adds the edges of each cell.
+
+    Args:
+        edges: List of Edge objects.
+    """
+    for edge in edges:
+        for cell in edge.getCells():
+            if not cell.isGhost():
+                cell.getEdges().append(edge)
+
+def _add_neighbors_to_cells(cells: list[Cell]):
+    """
+    Adds neighboring cells to each cell.
+
+    Args:
+        cells: List of Cell objects.
+    """
+    for cell in cells:
+        # for each cells, explore their neighbors using edges
+        for cell_edge in cell.getEdges():
+            edge_cell1, edge_cell2 = cell_edge.getCells()
+            assert edge_cell1 != edge_cell2 # assume that edges are coherent on 'getCells' method
+            other_cell = edge_cell1 if edge_cell2 == cell else edge_cell2
+            cell.getNeighbors().append(other_cell)
+
+def _process_inlets_and_outlets(
+    cells: list[Cell],
+    boundaries: list[Boundary],
+    inlets: list[RawInlet],
+    outlets: list[RawOutlet]
+):
+    """
+    Processes inlets and outlets, setting correct boundary type to corresponding Boundary object.
+    This function uses a naive approach to resolve target edge from inlet/outlet raw informations.
+    This approach don't guarantee landing on the good edge and make tests unreliable on this information.
+    This issue should be investigated, Issue N°: #10
+
+    Args:
+        cells: List of Cell objects.
+        boundaries: List of Boundary objects.
+        inlets: List of RawInlet objects.
+        outlets: List of RawOutlet objects.
+    """
+    # allows to search for a Cell object using it's ID
+    cells_dict = {cell.getID(): cell for cell in cells}
+    # allow to search for a Boundary object using it's target edge
+    boundary_edge_dict: dict[Edge, BoundaryImpl] = {boundary.getEdge(): boundary for boundary in boundaries}
+
+    # function to process generic raw inlet/outlet
+    def process_boundary_update(boundary_list, type_to_set: BoundaryType):
+        for raw_boundary in boundary_list:
+            target_cell = cells_dict[raw_boundary.cell]
+            edge_index = raw_boundary.edge - 1 # because mesh.geo is 1-based, not 0-based
+            target_edge = target_cell.getEdges()[edge_index]
+            target_boundary = boundary_edge_dict.get(target_edge)
+            # this can fail as resolving target edge using index in Cell#getEdges() is a naive approach
+            if target_boundary is None:
+                # this print should be replaced with a proper logging method
+                print(f"Warning: Target edge of inlet {raw_boundary.cell} is not a boundary edge.")
+            else:
+                target_boundary.setType(type_to_set)
+
+    # process inlets
+    process_boundary_update(inlets, BoundaryType.INFLOW)
+    # process outlets
+    process_boundary_update(outlets, BoundaryType.OUTFLOW)
 
 class MeshImpl(Mesh):
     """
@@ -278,131 +511,33 @@ class MeshImpl(Mesh):
         rawCells: list[RawCell],
         inlets: list[RawInlet],
         outlets: list[RawOutlet]
-        ) -> Mesh:
-        # Step 1: Create a dictionary to map vertex IDs to vertex objects
-        vertices_dict = {
-            v.id: VertexImpl(v.id, (v.x_coord, v.y_coord), False)
-            for v in rawVertices
-        }
+    ) -> Mesh:
+        """
+        Creates a Mesh object from raw vertex, cell, inlet, and outlet data.
 
-        # Step 2: Create cells
-        cells: list[Cell] = []
-        for raw_cell in rawCells:
-            # Get the vertices for this cell using their IDs
-            cell_vertices = []
-            cell_vertices.append(vertices_dict[raw_cell.vertex1])
-            cell_vertices.append(vertices_dict[raw_cell.vertex2])
-            cell_vertices.append(vertices_dict[raw_cell.vertex3])
-            if raw_cell.vertex4 != 0 and (raw_cell.vertex1 != raw_cell.vertex4):
-                cell_vertices.append(vertices_dict[raw_cell.vertex4])
-            # Create the cell
-            cell = CellImpl(
-                id=raw_cell.id,
-                vertices=list(cell_vertices),
-                edges=[],  # Will be populated later
-                neighbors=[],  # Will be populated later
-                isBoundary=False,
-                isGhost=False,
-            )
-            cells.append(cell)
+        Args:
+            rawVertices: List of raw vertex data.
+            rawCells: List of raw cell data.
+            inlets: List of raw inlet data.
+            outlets: List of raw outlet data.
 
-        # Step 3: Compute connectivity and create edges
-        edges: list[Edge] = []
-        edge_id = 1
-        edge_map: dict[tuple[int, int], EdgeImpl] = {}  # To avoid duplicate edges
+        Returns:
+            A fully constructed Mesh object.
+        """
+        vertices_dict = _create_partial_vertices_dict(rawVertices)
+        cells = _create_partial_cells(rawCells, vertices_dict)
+        edges = _create_partial_edges(cells, vertices_dict)
+        boundaries = _create_boundaries(edges)
+        _add_cell_edges(edges)
+        _add_neighbors_to_cells(cells)
+        _process_inlets_and_outlets(cells, boundaries, inlets, outlets)
 
-        for cell in cells:
-            # get all possible vertices combinations among cell's vertices
-            possible_edges = []
-            for i in range(cell.getVerticesNumber()):
-                for j in range(i+1, cell.getVerticesNumber()):
-                    vertex1 = cell.getVertices()[i]
-                    vertex2 = cell.getVertices()[j]
-                    possible_edges.append((vertex1.getID(), vertex2.getID()))
-            # create edges
-            for possible_edge in possible_edges:
-                edge_key = tuple(sorted(possible_edge))
-                if edge_key not in edge_map:
-                    # create incomplete edge object
-                    edge = EdgeImpl(
-                        id=edge_id,
-                        vertices=(vertices_dict[possible_edge[0]], vertices_dict[possible_edge[1]]),
-                        # second cell will be set later if possible, either another cell or ghost cell
-                        cells=(cell, cell),
-                        # boundary by default, this will be set to False later if there is another cell connected to it
-                        isBoundary=True
-                    )
-                    edges.append(edge)
-                    edge_id += 1
-                    edge_map[edge_key] = edge
-                else:
-                    # update edge's cells
-                    edge = edge_map[edge_key]
-                    edge.setCells((edge.getCells()[0], cell)) # change second cell for current cell
-                    edge.boundary = False
-
-        # Step 4: Create boundaries
-        boundaries: list[Boundary] = []
-        for edge in edges:
-            if edge.isBoundary():
-                boundary = BoundaryImpl(edge, BoundaryType.WALL)  # Default type
-                boundaries.append(boundary)
-                # create ghost cell
-                real_cell = edge.getCells()[0]
-                real_cell.setBoundary(True)
-                ghost_cell = GhostCell(real_cell)
-                edge.setCells((edge.getCells()[0], ghost_cell))
-        
-        # Step 5: Update boundary vertices
-        for boundary in boundaries:
-            target_edge = boundary.getEdge()
-            edge_vertices = target_edge.getVertices()
-            for vertex in edge_vertices:
-                vertex.setBoundary(True)
-
-
-        # Step 5: Update cell edges
-        for edge in edges:
-            edge_cells = edge.getCells()
-            for cell in edge_cells:
-                if not cell.isGhost():
-                    cell.getEdges().append(edge)
-
-        # Step 6: Process INLET and OUTLET
-        cells_dict = {cell.getID(): cell for cell in cells}
-        boundary_edge_dict = {boundary.getEdge(): boundary for boundary in boundaries}
-        # INLET
-        for raw_inlet in inlets:
-            target_cell = cells_dict[raw_inlet.cell]
-            edge_index = raw_inlet.edge-1
-            target_edges = [(e.getVertices()[0].getID(), e.getVertices()[1].getID()) for e in target_cell.getEdges()]
-            target_edge = target_cell.getEdges()[edge_index]
-            target_boundary = boundary_edge_dict.get(target_edge)
-            if target_boundary is None:
-                print("Warning: target edge of an inflow is not a boundary edge")
-            else:
-                target_boundary.setType(BoundaryType.INFLOW)
-
-        # OUTLET
-        for raw_outlet in outlets:
-            target_cell = cells_dict[raw_outlet.cell]
-            edge_index = raw_outlet.edge-1
-            target_edge = target_cell.getEdges()[edge_index]
-            target_boundary = boundary_edge_dict.get(target_edge)
-            if target_boundary is None:
-                print("Warning: target edge of an outflow is not a boundary edge")
-            else:
-                target_boundary.setType(BoundaryType.OUTFLOW)
-        
-        # Step 7: Add neighbors
-        for cell in cells:
-            for cell_edge in cell.getEdges():
-                edge_cell1, edge_cell2 = cell_edge.getCells()
-                other_cell = edge_cell1 if edge_cell2 == cell else edge_cell2
-                cell.getNeighbors().append(other_cell)
-
-        mesh = MeshImpl(vertices=list(vertices_dict.values()), edges=edges, cells=cells, boundaries=boundaries)
-        return mesh
+        return MeshImpl(
+            vertices=list(vertices_dict.values()),
+            edges=edges,
+            cells=cells,
+            boundaries=boundaries,
+        )
 
     def getSurface(self) -> float:
         return self.surface
@@ -430,11 +565,3 @@ class MeshImpl(Mesh):
 
     def getBoundaries(self) -> list[Boundary]:
         return self.boundaries
-
-if __name__ == "__main__":
-    import os
-    with open(os.path.join('testmesh.geo'), "r") as f:
-        from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-        mesh_reader = DassflowMeshReader()
-        raw_vertices, raw_cells, raw_inlets, raw_outlets = mesh_reader.read(os.path.join('testmesh.geo'))
-        mesh = MeshImpl.createFromPartialInformation(raw_vertices, raw_cells, raw_inlets, raw_outlets)
