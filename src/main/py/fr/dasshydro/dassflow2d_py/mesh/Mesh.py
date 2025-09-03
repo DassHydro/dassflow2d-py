@@ -12,6 +12,7 @@ class MeshType(Enum):
 
 
 from abc import ABC, abstractmethod
+from typing import Iterable
 
 class Vertex(ABC):
 
@@ -79,7 +80,7 @@ class Cell(ABC):
         pass
 
     @abstractmethod
-    def getVertices(self) -> list[Vertex]:
+    def getVertices(self) -> Iterable[Vertex]:
         """
         Get the list of the cell's vertices
 
@@ -100,7 +101,7 @@ class Cell(ABC):
         pass
 
     @abstractmethod
-    def  getEdges(self) -> list['Edge']:
+    def  getEdges(self) -> Iterable['Edge']:
         """
         Get the list of the cell's edges
 
@@ -110,7 +111,7 @@ class Cell(ABC):
         pass
 
     @abstractmethod
-    def getNeighbors(self) -> list['Cell']:
+    def getNeighbors(self) -> Iterable['Cell']:
         """
         Get all neighboring cells
 
@@ -350,7 +351,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getVertices(self) -> list[Vertex]:
+    def getVertices(self) -> Iterable[Vertex]:
         """
         Get the list of all vertices in the mesh.
 
@@ -370,7 +371,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getEdges(self) -> list[Edge]:
+    def getEdges(self) -> Iterable[Edge]:
         """
         Get the list of edges in the mesh.
 
@@ -390,7 +391,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getCells(self) -> list[Cell]:
+    def getCells(self) -> Iterable[Cell]:
         """
         Get the list of cells in the mesh.
 
@@ -410,7 +411,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getBoundaries(self) -> list[Boundary]:
+    def getBoundaries(self) -> Iterable[Boundary]:
         """
         Get the list of boundaries associated with edges in the mesh.
 
