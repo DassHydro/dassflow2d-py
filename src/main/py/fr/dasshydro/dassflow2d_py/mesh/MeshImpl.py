@@ -16,6 +16,9 @@ class VertexImpl(Vertex):
     def isBoundary(self) -> bool:
         return self.boundary
 
+    def setBoundary(self, isBoundary: bool):
+        self.boundary = isBoundary
+
 
 def _gauss_area_formula(vertices: list[tuple[float, float]]):
     """
@@ -224,8 +227,6 @@ class EdgeImpl(Edge):
 
     def getFluxDirectionVector(self) -> tuple[float, float]:
         assert self.cells[0] != self.cells[1]
-        print(self.cells[0].getVertices()[0].getCoordinates(), self.cells[0].getVertices()[1].getCoordinates(), self.cells[0].getVertices()[2].getCoordinates())
-        print(self.cells[1].getVertices()[0].getCoordinates(), self.cells[1].getVertices()[1].getCoordinates(), self.cells[1].getVertices()[2].getCoordinates())
         return self.fluxDirectionVector
 
     def getVectorToCellCenter(self, cell: Cell) -> tuple[float, float]:
@@ -250,6 +251,9 @@ class BoundaryImpl(Boundary):
 
     def getType(self) -> BoundaryType:
         return self.type
+
+    def setType(self, boundaryType: BoundaryType):
+        self.type = boundaryType
 
 
 class MeshImpl(Mesh):
@@ -337,7 +341,7 @@ class MeshImpl(Mesh):
                     edge.boundary = False
 
         # Step 4: Create boundaries
-        boundaries = []
+        boundaries: list[Boundary] = []
         for edge in edges:
             if edge.isBoundary():
                 boundary = BoundaryImpl(edge, BoundaryType.WALL)  # Default type
@@ -347,6 +351,14 @@ class MeshImpl(Mesh):
                 real_cell.setBoundary(True)
                 ghost_cell = GhostCell(real_cell)
                 edge.setCells((edge.getCells()[0], ghost_cell))
+        
+        # Step 5: Update boundary vertices
+        for boundary in boundaries:
+            target_edge = boundary.getEdge()
+            edge_vertices = target_edge.getVertices()
+            for vertex in edge_vertices:
+                vertex.setBoundary(True)
+
 
         # Step 5: Update cell edges
         for edge in edges:
@@ -354,15 +366,38 @@ class MeshImpl(Mesh):
             for cell in edge_cells:
                 if not cell.isGhost():
                     cell.getEdges().append(edge)
+
+        # Step 6: Process INLET and OUTLET
+        cells_dict = {cell.getID(): cell for cell in cells}
+        boundary_edge_dict = {boundary.getEdge(): boundary for boundary in boundaries}
+        # INLET
+        for raw_inlet in inlets:
+            target_cell = cells_dict[raw_inlet.cell]
+            edge_index = raw_inlet.edge-1
+            target_edge = target_cell.getEdges()[edge_index]
+            target_boundary = boundary_edge_dict.get(target_edge)
+            if target_boundary is None:
+                print("Warning: target edge of an inflow is not a boundary edge")
+            else:
+                target_boundary.setType(BoundaryType.INFLOW)
+        # OUTLET
+        for raw_outlet in outlets:
+            target_cell = cells_dict[raw_outlet.cell]
+            edge_index = raw_outlet.edge-1
+            target_edge = target_cell.getEdges()[edge_index]
+            target_boundary = boundary_edge_dict.get(target_edge)
+            if target_boundary is None:
+                print("Warning: target edge of an outflow is not a boundary edge")
+            else:
+                target_boundary.setType(BoundaryType.OUTFLOW)
         
-        # Step 6: Add neighbors
+        # Step 7: Add neighbors
         for cell in cells:
             for cell_edge in cell.getEdges():
                 edge_cell1, edge_cell2 = cell_edge.getCells()
                 other_cell = edge_cell1 if edge_cell2 == cell else edge_cell2
                 cell.getNeighbors().append(other_cell)
 
-        # Step 6: Return the mesh
         mesh = MeshImpl(vertices=list(vertices_dict.values()), edges=edges, cells=cells, boundaries=boundaries)
         return mesh
 
