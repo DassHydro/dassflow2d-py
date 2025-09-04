@@ -22,7 +22,7 @@ class ResultWriter:
         quotient = current_simulation_time // self.dtw
         if quotient > self.last_quotient:
             # it's time to write!
-            self.last_quotient = quotient
+            self.last_quotient = int(quotient)
             return True
         return False
     

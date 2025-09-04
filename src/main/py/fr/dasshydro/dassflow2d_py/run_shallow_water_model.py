@@ -98,7 +98,7 @@ def run_shallow_water_model(configuration: Configuration):
 
         if result_writer.isTimeToWrite(current_simulation_time):
 
-            result_writer.write(current_state)
+            result_writer.write(current_state, current_simulation_time)
 
 
 import argparse
