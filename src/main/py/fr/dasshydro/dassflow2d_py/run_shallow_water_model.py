@@ -1,6 +1,5 @@
 # imports
 
-
 from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
 from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
 
@@ -30,6 +29,7 @@ from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshRead
 from fr.dasshydro.dassflow2d_py.input.BathymetryReader import BathymetryReader
 from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
+from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl
 import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
 
 def run_shallow_water_model(configuration: Configuration):
@@ -48,7 +48,7 @@ def run_shallow_water_model(configuration: Configuration):
     # Read mesh
     mesh_reader = DassflowMeshReader()
     mesh_file = configuration.getMeshFile()
-    mesh = mesh_reader.read(mesh_file)
+    raw_info = mesh_reader.read(mesh_file)
 
     # Read bathymetry
     bathymetry_reader = BathymetryReader()
@@ -60,6 +60,9 @@ def run_shallow_water_model(configuration: Configuration):
     initial_state = initial_state_reader.read(initial_state_file)
 
     #################### Initialize #######################
+
+    # Create the mesh
+    mesh = MeshImpl.createFromPartialInformation(*raw_info)
 
     # Instantiate used resolution method based on parameters
     resolution_method = get_resolution_method(configuration)
