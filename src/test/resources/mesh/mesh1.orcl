@@ -1,0 +1,41 @@
+### HEADER
+header:
+  surface: 2.0
+  edge_number: 9
+### VERTICES
+vertices: {
+  1: true,
+  2: true,
+  3: true,
+  4: true,
+  5: true,
+  6: true
+}
+### CELLS
+cells: {
+  1: [0.5, 3.41421356, true, [3, 4, null]],
+  2: [0.5, 3.41421356, true, [4, null, null]],
+  3: [0.5, 3.41421356, true, [1, null, null]],
+  4: [0.5, 3.41421356, true, [1, 2, null]]
+}
+### EDGES
+edges: {
+  "1, 2": true,
+  "1, 4": true,
+  "1, 5": false,
+  "2, 3": true,
+  "2, 5": false,
+  "2, 6": false,
+  "3, 6": true,
+  "4, 5": true,
+  "5, 6": true
+}
+### BOUNDARIES
+boundaries: {
+  "1, 2": "wall",
+  "1, 4": "inflow",
+  "2, 3": "wall",
+  "3, 6": "outflow",
+  "4, 5": "wall",
+  "5, 6": "wall"
+}

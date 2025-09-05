@@ -12,6 +12,7 @@ class MeshType(Enum):
 
 
 from abc import ABC, abstractmethod
+from typing import Iterable
 
 class Vertex(ABC):
 
@@ -79,7 +80,7 @@ class Cell(ABC):
         pass
 
     @abstractmethod
-    def getVertices(self) -> list[Vertex]:
+    def getVertices(self) -> Iterable[Vertex]:
         """
         Get the list of the cell's vertices
 
@@ -100,7 +101,7 @@ class Cell(ABC):
         pass
 
     @abstractmethod
-    def  getEdges(self) -> list['Edge']:
+    def  getEdges(self) -> Iterable['Edge']:
         """
         Get the list of the cell's edges
 
@@ -110,7 +111,7 @@ class Cell(ABC):
         pass
 
     @abstractmethod
-    def getNeighbors(self) -> list['Cell']:
+    def getNeighbors(self) -> Iterable['Cell']:
         """
         Get all neighboring cells
 
@@ -163,12 +164,12 @@ class Edge(ABC):
         pass
 
     @abstractmethod
-    def getVertices(self) -> list[Vertex]:
+    def getVertices(self) -> tuple[Vertex, Vertex]:
         """
-        Get the list of vertices associated with the edge.
+        Get the two vertices associated with the edge.
 
-        :return: list of vertices of the edge
-        :rtype: list[Vertex]
+        :return: tuple of the two vertices of the edge
+        :rtype: tuple[Vertex, Vertex]
         """
         pass
 
@@ -192,12 +193,12 @@ class Edge(ABC):
         pass
 
     @abstractmethod
-    def getCells(self) -> list[Cell]:
+    def getCells(self) -> tuple[Cell, Cell]:
         """
-        Get the list of cells associated with the edge.
+        Get the two cells associated with the edge.
 
-        :return: list of cells associated with the edge
-        :rtype: list[Cell]
+        :return: tuple of the two cells associated with the edge
+        :rtype: tuple[Cell, Cell]
         """
         pass
 
@@ -318,8 +319,10 @@ class Mesh(ABC):
     @staticmethod
     @abstractmethod
     def createFromPartialInformation(
-        rawVertices: list[RawVertex], rawCells: list[RawCell],
-        inlet = list[RawInlet], outlet = list[RawOutlet]
+        rawVertices: Iterable[RawVertex],
+        rawCells: Iterable[RawCell],
+        inlet: Iterable[RawInlet],
+        outlet: Iterable[RawOutlet]
     ) -> 'Mesh':
         """
         Create a mesh from raw informations
@@ -350,7 +353,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getVertices(self) -> list[Vertex]:
+    def getVertices(self) -> Iterable[Vertex]:
         """
         Get the list of all vertices in the mesh.
 
@@ -370,7 +373,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getEdges(self) -> list[Edge]:
+    def getEdges(self) -> Iterable[Edge]:
         """
         Get the list of edges in the mesh.
 
@@ -390,7 +393,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getCells(self) -> list[Cell]:
+    def getCells(self) -> Iterable[Cell]:
         """
         Get the list of cells in the mesh.
 
@@ -410,7 +413,7 @@ class Mesh(ABC):
         pass
 
     @abstractmethod
-    def getBoundaries(self) -> list[Boundary]:
+    def getBoundaries(self) -> Iterable[Boundary]:
         """
         Get the list of boundaries associated with edges in the mesh.
 
