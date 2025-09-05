@@ -1,4 +1,5 @@
 from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
+from fr.dasshydro.dassflow2d_py.output.ResultWriter import OutputMode
 
 class Configuration:
     """
@@ -19,7 +20,8 @@ class Configuration:
         'simulation-time': '10000',
         'delta-to-write': '100',
         'is-delta-adaptative': 'False',
-        'default-delta': '0.01'
+        'default-delta': '0.01',
+        'output-mode': 'gnuplot'
     }
 
     def __init__(self):
@@ -56,6 +58,9 @@ class Configuration:
         raise NotImplementedError("Not yet implemented.")
     
     def getDefaultDelta(self) -> float:
+        raise NotImplementedError("Not yet implemented.")
+
+    def getOutputMode(self) -> OutputMode:
         raise NotImplementedError("Not yet implemented.")
     
     def updateValues(self, values: dict[str, str]):

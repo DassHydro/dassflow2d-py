@@ -17,6 +17,3 @@ class TimeStepState:
 
     def getNode(self, cell: Cell) -> Node:
         return self.state[cell]
-
-    def getKeys(self) -> Iterable[Cell]:
-        return self.state.keys()
