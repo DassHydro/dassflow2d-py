@@ -1,7 +1,6 @@
 import os
 from enum import Enum
 import h5py #type: ignore
-from vtk.util.numpy_support import numpy_to_vtk #type: ignore
 import vtk #type: ignore
 
 from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
@@ -148,31 +147,50 @@ class ResultWriter:
                 y = cell.getGravityCenter()[1]
                 file.write(f"   {id} {x} {y} 0.0 {hs[i]} {hs[i]} 0.0 {us[i]} {vs[i]}\n")
 
-    def _write_hdf5(self, ids, hs, us, vs, filename: str):
+    def _write_hdf5(self, all_data, filename: str):
+        """
+        Write all raw results into a single HDF5 file.
+        all_data: dict{simulation_time: (ids, hs, us, vs)}
+        """
         with h5py.File(filename, "w") as hdf:
-            hdf.create_dataset("ids", data=ids)
-            hdf.create_dataset("h", data=hs)
-            hdf.create_dataset("u", data=us)
-            hdf.create_dataset("v", data=vs)
-            # Optionally, store mesh data as well
+            for time, (ids, hs, us, vs) in all_data.items():
+                # Create a group for each time step
+                group = hdf.create_group(f"time_{time:.6e}")
+                group.create_dataset("ids", data=ids)
+                group.create_dataset("h", data=hs)
+                group.create_dataset("u", data=us)
+                group.create_dataset("v", data=vs)
 
     def writeAll(self, output_mode: OutputMode):
         raw_files = [f for f in os.listdir(self.result_folder) if f.endswith(".raw")]
+        all_data = {}  # Dictionary to store all raw data: {simulation_time: (ids, hs, us, vs)}
+
         for raw_file in raw_files:
             raw_filepath = os.path.join(self.result_folder, raw_file)
             float_str = raw_file.replace("result_", "").replace(".raw", "")
             simulation_time = float(float_str)
             ids, hs, us, vs = self._read_raw_file(raw_filepath)
-            base_name = os.path.splitext(raw_file)[0]
-            if output_mode == OutputMode.VTK:
+            all_data[simulation_time] = (ids, hs, us, vs)
+
+        if output_mode == OutputMode.VTK:
+            for raw_file in raw_files:
+                base_name = os.path.splitext(raw_file)[0]
                 output_file = os.path.join(self.result_folder, f"{base_name}.vtk")
+                ids, hs, us, vs = all_data[float(base_name.replace("result_", ""))]
                 self._write_vtk(ids, hs, us, vs, output_file)
-            elif output_mode == OutputMode.TECPLOT:
+        elif output_mode == OutputMode.TECPLOT:
+            for raw_file in raw_files:
+                base_name = os.path.splitext(raw_file)[0]
                 output_file = os.path.join(self.result_folder, f"{base_name}.plt")
+                simulation_time = float(base_name.replace("result_", ""))
+                ids, hs, us, vs = all_data[simulation_time]
                 self._write_tecplot(ids, hs, us, vs, simulation_time, output_file)
-            elif output_mode == OutputMode.GNUPLOT:
+        elif output_mode == OutputMode.GNUPLOT:
+            for raw_file in raw_files:
+                base_name = os.path.splitext(raw_file)[0]
                 output_file = os.path.join(self.result_folder, f"{base_name}.dat")
+                ids, hs, us, vs = all_data[float(base_name.replace("result_", ""))]
                 self._write_gnuplot(ids, hs, us, vs, output_file)
-            elif output_mode == OutputMode.HDF5:
-                output_file = os.path.join(self.result_folder, f"{base_name}.h5")
-                self._write_hdf5(ids, hs, us, vs, output_file)
+        elif output_mode == OutputMode.HDF5:
+            output_file = os.path.join(self.result_folder, "results.hdf5")  # Single HDF5 file
+            self._write_hdf5(all_data, output_file)

@@ -267,7 +267,7 @@ class TestResultWriter(unittest.TestCase):
                 self.assertAlmostEqual(v_val, expected_v, places=6, msg=f"v value mismatch in Gnuplot file")
 
     def testHDF5Output(self):
-        """Test that HDF5 output is generated correctly and contains expected data."""
+        """Test that HDF5 output is generated correctly and contains expected data for all time steps."""
         self.result_writer.last_quotient = -1
         H_BASE_VALUE = 0.3222
         U_BASE_VALUE = 94.3311
@@ -286,19 +286,22 @@ class TestResultWriter(unittest.TestCase):
         self.result_writer.save(state, 0.0)
         # Convert to HDF5
         self.result_writer.writeAll(OutputMode.HDF5)
-        # Check the file exists
-        expected_path = os.path.join(self.temp_dir.name, "result_0.000000e+00.h5")
+        # Check the file exists (now named results.hdf5)
+        expected_path = os.path.join(self.temp_dir.name, "results.hdf5")
         self.assertTrue(os.path.exists(expected_path))
         # Read the HDF5 file and check its content
         with h5py.File(expected_path, "r") as hdf:
-            self.assertIn("ids", hdf)
-            self.assertIn("h", hdf)
-            self.assertIn("u", hdf)
-            self.assertIn("v", hdf)
-            ids = hdf["ids"][:]
-            hs = hdf["h"][:]
-            us = hdf["u"][:]
-            vs = hdf["v"][:]
+            # Check that a group for time 0.0 exists
+            self.assertIn("time_0.000000e+00", hdf)
+            time_group = hdf["time_0.000000e+00"]
+            self.assertIn("ids", time_group)
+            self.assertIn("h", time_group)
+            self.assertIn("u", time_group)
+            self.assertIn("v", time_group)
+            ids = time_group["ids"][:]
+            hs = time_group["h"][:]
+            us = time_group["u"][:]
+            vs = time_group["v"][:]
             # Check that the values match the expected pattern
             for i, id in enumerate(ids):
                 expected_h = H_BASE_VALUE + i * 1.0
