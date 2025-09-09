@@ -14,7 +14,8 @@ class TestMeshImpl(unittest.TestCase):
         self.mesh_path = os.path.join('src', 'test', 'resources', 'mesh', 'mesh1.geo')
         self.oracle_path = os.path.join('src', 'test', 'resources', 'mesh', 'mesh1.orcl')
         # Intermediate values
-        raw_vertices, raw_cells, raw_inlets, raw_outlets = DassflowMeshReader().read(self.mesh_path)
+        raw_info = DassflowMeshReader().read(self.mesh_path)
+        raw_vertices, raw_cells, raw_inlets, raw_outlets = raw_info[:4]
         # Build mesh
         self.mesh = MeshImpl.createFromPartialInformation(raw_vertices, raw_cells, raw_inlets, raw_outlets)
         # Read oracle

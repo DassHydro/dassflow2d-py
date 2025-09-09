@@ -43,7 +43,8 @@ class TestDassflowMeshReader(unittest.TestCase):
 
     def test_read_mesh_file(self):
         """Test reading a mesh file and verifying its contents"""
-        raw_vertices, raw_cells, inlet, outlet = self.reader.read(self.temp_file.name)
+        raw_info = self.reader.read(self.temp_file.name)
+        raw_vertices, raw_cells, inlet, outlet = raw_info[:4]
 
         # Test vertices
         self.assertEqual(len(raw_vertices), 6)
@@ -66,7 +67,8 @@ class TestDassflowMeshReader(unittest.TestCase):
 
     def test_vertex_coordinates(self):
         """Test that vertex coordinates are correctly read"""
-        raw_vertices, _, _, _ = self.reader.read(self.temp_file.name)
+        raw_info = self.reader.read(self.temp_file.name)
+        raw_vertices = raw_info[0]
 
         # Check coordinates of specific vertices
         self.assertAlmostEqual(raw_vertices[0][1], 0.0)  # x-coord of vertex 1
@@ -78,7 +80,8 @@ class TestDassflowMeshReader(unittest.TestCase):
 
     def test_cell_connectivity(self):
         """Test that cell connectivity is correctly read"""
-        _, raw_cells, _, _ = self.reader.read(self.temp_file.name)
+        raw_info = self.reader.read(self.temp_file.name)
+        raw_cells = raw_info[1]
 
         # Check connectivity of specific cells
         self.assertEqual(raw_cells[0], (1, 1, 2, 5, 1))  # Cell 1
@@ -110,7 +113,8 @@ class TestDassflowMeshReader(unittest.TestCase):
         temp_file.close()
 
         try:
-            _, raw_cells, _, _ = self.reader.read(temp_file.name)
+            raw_info = self.reader.read(temp_file.name)
+            raw_cells = raw_info[1]
 
             # Check that triangular cells are handled correctly (node4 = node1)
             self.assertEqual(raw_cells[0], (1, 1, 2, 4, 1))  # Should be (1, 2, 4, 1)
