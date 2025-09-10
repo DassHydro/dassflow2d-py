@@ -12,16 +12,16 @@ class TestDassflowMeshReader(unittest.TestCase):
             6 4 1.0
             #Vertex||| id vertex, x coord, y coord, bathymetry
             1 0.0 0.0 0.0
-            2 1.0 0.0 0.0
-            3 2.0 0.0 0.0
-            4 0.0 1.0 0.0
-            5 1.0 1.0 0.0
-            6 2.0 1.0 0.0
+            2 1.0 0.0 1.0
+            3 2.0 0.0 2.0
+            4 0.0 1.0 3.0
+            5 1.0 1.0 4.0
+            6 2.0 1.0 5.0
             #cells||| id cell, id_vertex1, id_vertex2, id_vertex3, id_vertex4, patch_manning, bathymetry
-            1 1 2 5 1 1 0.
-            2 2 3 6 2 1 0.
-            3 1 4 5 1 1 0.
-            4 2 5 6 2 1 0.
+            1 1 2 5 1 1 1.
+            2 2 3 6 2 1 2.
+            3 1 4 5 1 1 3.
+            4 2 5 6 2 1 4.
             # boundaries
             INLET 1 1
             3 1 1 1 1
@@ -45,6 +45,7 @@ class TestDassflowMeshReader(unittest.TestCase):
         """Test reading a mesh file and verifying its contents"""
         raw_info = self.reader.read(self.temp_file.name)
         raw_vertices, raw_cells, inlet, outlet = raw_info[:4]
+        vertex_bathymetry, cell_bathymetry = raw_info[4:6]
 
         # Test vertices
         self.assertEqual(len(raw_vertices), 6)
@@ -64,6 +65,24 @@ class TestDassflowMeshReader(unittest.TestCase):
 
         self.assertEqual(len(outlet), 1)
         self.assertEqual(outlet[0], RawOutlet(2, 1, 1, 1.0))
+
+        # Test bathymetry
+        expected_vertex_bathymetry = {
+            1: 0.0,
+            2: 1.0,
+            3: 2.0,
+            4: 3.0,
+            5: 4.0,
+            6: 5.0
+        }
+        self.assertEqual(expected_vertex_bathymetry, vertex_bathymetry)
+        expected_cell_bathymetry = {
+            1: 1.0,
+            2: 2.0,
+            3: 3.0,
+            4: 4.0
+        }
+        self.assertEqual(expected_cell_bathymetry, cell_bathymetry)
 
     def test_vertex_coordinates(self):
         """Test that vertex coordinates are correctly read"""
