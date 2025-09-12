@@ -19,14 +19,14 @@ def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
         # TODO: configure euler time step here (porosity, infiltration...)
         from fr.dasshydro.dassflow2d_py.resolution.EulerTimeStep import EulerTimeStep
         return EulerTimeStep(configuration)
-        
+
     else:
 
         raise NotImplementedError("As for now, only Euler with HLLC is supported.")
 
 
 from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-from fr.dasshydro.dassflow2d_py.input.BathymetryReader import BathymetryReader
+from fr.dasshydro.dassflow2d_py.input.CellBathymetryDict import CellBathymetryDict
 from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
 from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl
@@ -50,10 +50,10 @@ def run_shallow_water_model(configuration: Configuration):
     mesh_reader = DassflowMeshReader()
     mesh_file = configuration.getMeshFile()
     raw_info = mesh_reader.read(mesh_file)
+    raw_mesh_info = raw_info[:4]
 
     # Read bathymetry
-    bathymetry_reader = BathymetryReader()
-    cell_bathymetry_function = bathymetry_reader.readCellBathymetry()
+    _, cell_bathymetry = raw_info[4:6]
 
     # Read first time step state
     initial_state_reader = InitialStateReader()
@@ -62,12 +62,10 @@ def run_shallow_water_model(configuration: Configuration):
     ##################### Initialize ######################
 
     # Create the mesh
-    mesh = MeshImpl.createFromPartialInformation(*raw_info)
+    mesh = MeshImpl.createFromPartialInformation(*raw_mesh_info)
 
     # Create bathymetry dictionary
-    bathymetry = {}
-    for cell in mesh.getCells():
-        bathymetry[cell] = cell_bathymetry_function(cell)
+    bathymetry = CellBathymetryDict(cell_bathymetry)
 
     # Create initial state
     raw_initial_state = initial_state_reader.read(initial_state_file, mesh.getCellNumber())
@@ -187,7 +185,7 @@ def main():
         arg_value = getattr(args, arg_name)
         if arg_value is not None:
             configuration_values[arg_name] = arg_value
-            
+
     configuration.updateValues(configuration_values)
 
     run_shallow_water_model(configuration)

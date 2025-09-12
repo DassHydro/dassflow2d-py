@@ -14,8 +14,9 @@ class TestResultWriter(unittest.TestCase):
     def setUp(self):
         self.temp_dir = TemporaryDirectory()
         mesh_filepath = os.path.join('src', 'test', 'resources', 'mesh', 'mesh1.geo')
-        rv, rc, ri, ro = DassflowMeshReader().read(mesh_filepath)
-        self.mesh = MeshImpl.createFromPartialInformation(rv, rc, ri, ro)
+        raw_info = DassflowMeshReader().read(mesh_filepath)
+        raw_mesh_info = raw_info[:4]
+        self.mesh = MeshImpl.createFromPartialInformation(*raw_mesh_info)
         self.result_writer = ResultWriter(self.mesh, self.temp_dir.name, 1.0)
 
     def tearDown(self):
