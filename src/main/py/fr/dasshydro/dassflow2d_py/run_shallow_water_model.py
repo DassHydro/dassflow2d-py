@@ -30,6 +30,7 @@ from fr.dasshydro.dassflow2d_py.input.BathymetryReader import BathymetryReader
 from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
 from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl
+from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
 import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
 
 def run_shallow_water_model(configuration: Configuration):
@@ -57,20 +58,26 @@ def run_shallow_water_model(configuration: Configuration):
     # Read first time step state
     initial_state_reader = InitialStateReader()
     initial_state_file = configuration.getInitialStateFile()
-    initial_state = initial_state_reader.read(initial_state_file)
 
     ##################### Initialize ######################
 
     # Create the mesh
     mesh = MeshImpl.createFromPartialInformation(*raw_info)
 
-    # Instantiate used resolution method based on parameters
-    resolution_method = get_resolution_method(configuration)
-
     # Create bathymetry dictionary
     bathymetry = {}
     for cell in mesh.getCells():
         bathymetry[cell] = cell_bathymetry_function(cell)
+
+    # Create initial state
+    raw_initial_state = initial_state_reader.read(initial_state_file, mesh.getCellNumber())
+    node_dictionary = {}
+    for i, cell in enumerate(mesh.getCells()):
+        node_dictionary[cell] = raw_initial_state[i]
+    initial_state = TimeStepState(node_dictionary)
+
+    # Instantiate used resolution method based on parameters
+    resolution_method = get_resolution_method(configuration)
 
     # Initialize time variables
     use_cfl = configuration.isDeltaAdaptative()
