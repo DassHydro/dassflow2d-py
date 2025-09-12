@@ -1,5 +1,5 @@
 from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
-import sys
+from fr.dasshydro.dassflow2d_py.output.ResultWriter import OutputMode
 
 class Configuration:
     """
@@ -11,7 +11,7 @@ class Configuration:
     # Define default values and valid namespaces at the same time
     DEFAULT = {
         'temporal-scheme': 'euler',
-        'spatial-scheme': 'first',
+        'spatial-scheme': 'hllc',
         'mesh-file': 'mesh.geo',
         'initial-state-file': 'dof_init.txt',
         'bathymetry-file': 'bathymetry.txt',
