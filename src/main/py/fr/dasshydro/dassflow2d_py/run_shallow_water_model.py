@@ -43,7 +43,7 @@ def run_shallow_water_model(configuration: Configuration):
     :raises: NotImplementedError: This function is not implemented yet and will raise a NotImplementedError when called.
     """
 
-    ###################### Reading ########################
+    ####################### Reading #######################
 
     # Read mesh
     mesh_reader = DassflowMeshReader()
@@ -59,7 +59,7 @@ def run_shallow_water_model(configuration: Configuration):
     initial_state_file = configuration.getInitialStateFile()
     initial_state = initial_state_reader.read(initial_state_file)
 
-    #################### Initialize #######################
+    ##################### Initialize ######################
 
     # Create the mesh
     mesh = MeshImpl.createFromPartialInformation(*raw_info)
@@ -79,14 +79,14 @@ def run_shallow_water_model(configuration: Configuration):
 
     # Instantiate result writer
     result_file_path = configuration.getResultFilePath()
-    result_writer = ResultWriter(result_file_path, delta_to_write)
+    result_writer = ResultWriter(mesh, result_file_path, delta_to_write)
 
     # Initialize runner variables
     current_state = initial_state
     simulation_time = configuration.getSimulationTime()
     current_simulation_time = 0.0
 
-    ######################## Run ##########################
+    ######################### Run #########################
 
     # Iterative call loop
     while current_simulation_time < simulation_time:
@@ -101,8 +101,13 @@ def run_shallow_water_model(configuration: Configuration):
 
         if result_writer.isTimeToWrite(current_simulation_time):
 
-            result_writer.write(current_state)
+            result_writer.save(current_state, current_simulation_time)
 
+    ############### Results post-treatment ################
+
+    output_mode = configuration.getOutputMode()
+
+    result_writer.writeAll(output_mode)
 
 import argparse
 
