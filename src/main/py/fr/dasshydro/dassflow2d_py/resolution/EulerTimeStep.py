@@ -5,6 +5,6 @@ class EulerTimeStep(ResolutionMethod):
 
     def __init__(self, configuration: Configuration):
         raise NotImplementedError("Not yet implemented.")
-    
-    def resolve(self, previous_time_step, mesh):
+
+    def resolve(self, previous_time_step, delta, mesh, bathymetry):
         raise NotImplementedError("Not yet implemented.")

@@ -17,6 +17,7 @@ class Configuration:
         'bathymetry-file': 'bathymetry.txt',
         'manning-file': 'manning.txt',
         'result-path': 'output/',
+        'output-mode': 'gnuplot',
         'simulation-time': '10000.0',
         'delta-to-write': '100.0',
         'is-delta-adaptative': 'False',
@@ -31,10 +32,10 @@ class Configuration:
 
     def getSpatialScheme(self) -> SpatialScheme:
         return self.spatial_scheme
-    
+
     def getMeshFile(self) -> str:
         return self.mesh_file
-    
+
     def getInitialStateFile(self) -> str:
         return self.initial_state_file
 
@@ -43,22 +44,25 @@ class Configuration:
 
     def getManningFile(self) -> str:
         return self.manning_file
-    
+
     def getResultFilePath(self) -> str:
         return self.result_path
-    
+
+    def getOutputMode(self) -> OutputMode:
+        return self.output_mode
+
     def getSimulationTime(self) -> float:
         return self.simulation_time
-    
+
     def getDeltaToWrite(self) -> float:
         return self.delta_to_write
-    
+
     def isDeltaAdaptative(self) -> bool:
         return self.is_delta_adaptative
-    
+
     def getDefaultDelta(self) -> float:
         return self.default_delta
-    
+
     def updateValues(self, values: dict[str, str]):
         if 'temporal-scheme' in values:
             self.temporal_scheme = TemporalScheme(values['temporal-scheme'])
@@ -80,6 +84,9 @@ class Configuration:
 
         if 'result-path' in values:
             self.result_path = values['result-path']
+
+        if 'output-mode' in values:
+            self.output_mode = OutputMode(values['output-mode'])
 
         if 'simulation-time' in values:
             self.simulation_time = float(values['simulation-time'])
