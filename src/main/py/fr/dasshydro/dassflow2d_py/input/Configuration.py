@@ -10,14 +10,17 @@ class Configuration:
 
     # Define default values and valid namespaces at the same time
     DEFAULT = {
-        'temporal-scheme': 'euler',
-        'spatial-scheme': 'hllc',
+        'temporal-scheme': TemporalScheme.EULER.value,
+        'spatial-scheme': SpatialScheme.HLLC.value,
         'mesh-file': 'mesh.geo',
+        'boundary-condition-file': 'bc.txt',
         'initial-state-file': 'dof_init.txt',
         'bathymetry-file': 'bathymetry.txt',
+        'hydrographs-file': 'hydrograph.txt',
+        'rating-curve-file': 'rating_curve.txt',
         'manning-file': 'manning.txt',
         'result-path': 'output/',
-        'output-mode': 'gnuplot',
+        'output-mode': OutputMode.GNUPLOT.value,
         'simulation-time': '10000.0',
         'delta-to-write': '100.0',
         'is-delta-adaptative': 'False',
@@ -36,11 +39,20 @@ class Configuration:
     def getMeshFile(self) -> str:
         return self.mesh_file
 
+    def getBoundaryConditionFile(self) -> str:
+        return self.boundary_condition_file
+
     def getInitialStateFile(self) -> str:
         return self.initial_state_file
 
     def getBathymetryFile(self) -> str:
         return self.bathymetry_file
+
+    def getHydrographsFile(self) -> str:
+        return self.hydrographs_file
+
+    def getRatingCurvesFile(self) -> str:
+        return self.rating_curves_file
 
     def getManningFile(self) -> str:
         return self.manning_file
@@ -73,11 +85,20 @@ class Configuration:
         if 'mesh-file' in values:
             self.mesh_file = values['mesh-file']
 
+        if 'boundary-condition-file' in values:
+            self.boundary_condition_file = values['boundary-condition-file']
+
         if 'initial-state-file' in values:
             self.initial_state_file = values['initial-state-file']
 
         if 'bathymetry-file' in values:
             self.bathymetry_file = values['bathymetry-file']
+
+        if 'hydrographs-file' in values:
+            self.hydrographs_file = values['hydrographs-file']
+
+        if 'rating-curves-file' in values:
+            self.rating_curves_file = values['rating-curves-file']
 
         if 'manning-file' in values:
             self.manning_file = values['manning-file']
