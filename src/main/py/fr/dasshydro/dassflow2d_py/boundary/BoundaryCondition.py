@@ -30,13 +30,15 @@ class BoundaryCondition(ABC):
         pass
 
 
-boundary_conditions_classes_from_namespace: dict[str, Type[BoundaryCondition]] = {
+default_boundary_condition_class: dict[str, Type[BoundaryCondition]] = {
 }
+
 
 def createBoundaryConditions(
     configuration: Configuration,
     boundaries: list[Boundary],
     boundaries_group: dict[Boundary, int],
+    boundary_condition_class: dict[str, Type[BoundaryCondition]] = default_boundary_condition_class
 ) -> list[BoundaryCondition]:
     """
     Create all boundary condition objects for all groups.
@@ -95,12 +97,12 @@ def createBoundaryConditions(
         # second argument in the line should be the boundary condition namespace
         bc_namespace = bc_args[1]
         # retrieve the associated class from namespace
-        boundary_condition_class = boundary_conditions_classes_from_namespace.get(bc_namespace)
+        bc_class = boundary_condition_class.get(bc_namespace)
         # raise error if there is no implementation for that namespace
-        if boundary_condition_class is None:
+        if bc_class is None:
             raise NotImplementedError(f"{bc_namespace} Not yet implemented.")
         # finally, create and add the boundary condition
-        new_boundary_condition = boundary_condition_class(configuration, boundary_list, *bc_args)
+        new_boundary_condition = bc_class(configuration, boundary_list, *bc_args)
         boundary_conditions.append(new_boundary_condition)
 
 

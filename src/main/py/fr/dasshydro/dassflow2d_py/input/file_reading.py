@@ -13,9 +13,11 @@ def _read_next(file: TextIOWrapper, ignore_predicate: Callable[[str], bool]) -> 
     line = file.readline()
     while ignore_predicate(line):
         line = file.readline()
+        if not line: # EndOfFile reached
+            raise EOFError("End of file reached without finding a valid line.")
     return line
 
-def _next_line(file: TextIOWrapper) -> str:
+def next_line(file: TextIOWrapper) -> str:
     """Gets the next line of text in file ignoring whitespaces and comments
 
     Args:
@@ -41,5 +43,5 @@ def extract(file: TextIOWrapper, type_tuple: tuple) -> tuple:
     Returns:
         tuple: all extracted variables in a tuple
     """
-    parts = _next_line(file).strip().split()
+    parts = next_line(file).strip().split()
     return tuple(typ(part) for typ, part in zip(type_tuple, parts))
