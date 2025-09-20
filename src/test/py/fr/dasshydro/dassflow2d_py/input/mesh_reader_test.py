@@ -26,7 +26,7 @@ class TestDassflowMeshReader(unittest.TestCase):
             INLET 1 1
             3 1 1 1 1
             OUTLET 1 1
-            2 1 1 1 1
+            2 1 1 1 2
         """
 
         # Create a temporary file
@@ -61,10 +61,10 @@ class TestDassflowMeshReader(unittest.TestCase):
 
         # Test boundaries
         self.assertEqual(len(inlet), 1)
-        self.assertEqual(inlet[0], RawInlet(3, 1, 1, 1.0))
+        self.assertEqual(inlet[0], RawInlet(3, 1, 1, 1.0, 1))
 
         self.assertEqual(len(outlet), 1)
-        self.assertEqual(outlet[0], RawOutlet(2, 1, 1, 1.0))
+        self.assertEqual(outlet[0], RawOutlet(2, 1, 1, 1.0, 2))
 
         # Test bathymetry
         expected_vertex_bathymetry = {

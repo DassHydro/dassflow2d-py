@@ -21,8 +21,8 @@ class Vertex(ABC):
         """
         Get the id of the vertex
 
-        :return: id of the vertex
-        :rtype: int
+        Returns:
+            int: id of the vertex
         """
         pass
 
@@ -31,8 +31,8 @@ class Vertex(ABC):
         """
         Get the coordinates of the vertex.
 
-        :return: coordinates of the vertex
-        :rtype: tuple[float, float]
+        Returns:
+            tuple[float, float]: coordinates of the vertex
         """
         pass
 
@@ -41,8 +41,8 @@ class Vertex(ABC):
         """
         Check if the vertex is on the boundary.
 
-        :return: True if the vertex is on the boundary, False otherwise
-        :rtype: bool
+        Returns:
+            bool: True if the vertex is on the boundary, False otherwise
         """
         pass
 
@@ -54,8 +54,8 @@ class Cell(ABC):
         """
         Get the id of the cell
 
-        :return: id of the cell
-        :rtype: int
+        Returns:
+            int: id of the cell
         """
         pass
 
@@ -64,8 +64,8 @@ class Cell(ABC):
         """
         Get the surface area of the cell
 
-        :return: surface area of the cell
-        :rtype: float
+        Returns:
+            float: surface area of the cell
         """
         pass
 
@@ -74,8 +74,8 @@ class Cell(ABC):
         """
         Get the perimeter of the cell
 
-        :return: perimeter of the cell
-        :rtype: float
+        Returns:
+            float: perimeter of the cell
         """
         pass
 
@@ -84,8 +84,8 @@ class Cell(ABC):
         """
         Get the list of the cell's vertices
 
-        :return: list of vertices of the cell
-        :rtype: list[Vertices]
+        Returns:
+            Iterable[Vertex]: list of vertices of the cell
         """
         pass
 
@@ -95,8 +95,8 @@ class Cell(ABC):
         Get the number of vertices that this cell have.
         It allows to know cell geometry (triangle, quadrilateral ...)
 
-        :return: number of vertices in the cell
-        :rtype: int
+        Returns:
+            int: number of vertices in the cell
         """
         pass
 
@@ -105,8 +105,8 @@ class Cell(ABC):
         """
         Get the list of the cell's edges
 
-        :return: list of edges of the cell
-        :rtype: list[Edge]
+        Returns:
+            Iterable[Edge]: list of edges of the cell
         """
         pass
 
@@ -115,8 +115,8 @@ class Cell(ABC):
         """
         Get all neighboring cells
 
-        :return: list of neighboring cells
-        :rtype: list[Cell]
+        Returns:
+            Iterable[Cell]: list of neighboring cells
         """
         pass
 
@@ -125,8 +125,8 @@ class Cell(ABC):
         """
         Get the cell's gravity center coordinates
 
-        :return: centre of gravity of the cell
-        :rtype: tuple[float, float]
+        Returns:
+            tuple[float,float]: centre of gravity of the cell
         """
         pass
 
@@ -135,8 +135,8 @@ class Cell(ABC):
         """
         Tells if the cell is at mesh boundary
 
-        :return: True if the cell is on the boundary, False otherwise
-        :rtype: bool
+        Returns:
+            bool: True if the cell is on the boundary, False otherwise
         """
         pass
 
@@ -145,8 +145,8 @@ class Cell(ABC):
         """
         Tells if the cell represent a ghost cell
 
-        :return: True if the cell is a ghost cell, False otherwise
-        :rtype: bool
+        Returns:
+            bool: True if the cell is a ghost cell, False otherwise
         """
         pass
 
@@ -158,8 +158,8 @@ class Edge(ABC):
         """
         Get the id of the edge
 
-        :return: id of the edge
-        :rtype: int
+        Returns:
+            int: id of the edge
         """
         pass
 
@@ -168,8 +168,8 @@ class Edge(ABC):
         """
         Get the two vertices associated with the edge.
 
-        :return: tuple of the two vertices of the edge
-        :rtype: tuple[Vertex, Vertex]
+        Returns:
+            tuple[Vertex,Vertex]: tuple of the two vertices of the edge
         """
         pass
 
@@ -178,17 +178,18 @@ class Edge(ABC):
         """
         Get the coordinates of the center of the edge.
 
-        :return: coordinates of the center of the edge
-        :rtype: tuple[float, float]
+        Returns:
+            tuple[float,float]: coordinates of the center of the edge
         """
         pass
 
     @abstractmethod
     def getLength(self) -> float:
-        """Get the length of the edge.
+        """
+        Get the length of the edge.
 
-        :return: length of the edge
-        :rtype: float
+        Returns:
+            float: length of the edge
         """
         pass
 
@@ -197,8 +198,8 @@ class Edge(ABC):
         """
         Get the two cells associated with the edge.
 
-        :return: tuple of the two cells associated with the edge
-        :rtype: tuple[Cell, Cell]
+        Returns:
+            tuple[Cell,Cell]: tuple of the two cells associated with the edge
         """
         pass
 
@@ -207,8 +208,8 @@ class Edge(ABC):
         """
         Get the normal vector of the edge.
 
-        :return: coordinates of the normal vector to the edge  (from cell 1 to cell 2).
-        :rtype: tuple[float, float]
+        Returns:
+            tuple[float,float]: coordinates of the normal vector to the edge  (from cell 1 to cell 2).
         """
         pass
 
@@ -218,8 +219,9 @@ class Edge(ABC):
         Get the vector connecting the centroids of the two cells adjacent to the edge.
         This vector goes from left cell center to right cell center
 
-        :return:  coordinates of vector connecting the centroids of the two cells adjacent to the edge (from cell 1 to cell 2).
-        :rtype: tuple[float, float]
+        Returns:
+            tuple[float,float]: coordinates of vector connecting the centroids of the
+            two cells adjacent to the edge (from cell 1 to cell 2).
         """
         pass
 
@@ -228,9 +230,11 @@ class Edge(ABC):
         """
         Get the vector from the edge to the centroid of a specified cell.
 
-        :param cell: Cell to which the vector is directed.
-        :return: coordinates of the vector from the edge to the centroid of the specified cell.
-        :rtype: tuple[float, float]
+        Args:
+            cell (Cell): Cell to which the vector is directed.
+
+        Returns:
+            tuple[float,float]: coordinates of the vector from the edge to the centroid of the specified cell.
         """
         pass
 
@@ -239,10 +243,19 @@ class Edge(ABC):
         """
         Check if the edge is on the boundary.
 
-        :return: Edge at this boundary
-        :rtype: Edge
+        Returns:
+            bool: wether or not the edge is at the mesh boundary
         """
         pass
+
+    def getGhostCell(self) -> Cell:
+        """
+        Shortcut function to get the ghost assuming the edge is a boundary edge
+
+        Returns:
+            Cell: the ghost cell if the edge is boundary, the second cell otherwise
+        """
+        return self.getCells()[1]
 
 
 class BoundaryType(Enum):
@@ -262,8 +275,8 @@ class Boundary(ABC):
         """
         Get the edge positioned at this boundary of the mesh
 
-        :return: True if the edge is on the boundary, False otherwise
-        :rtype: bool
+        Returns:
+            Edge: target edge of the boundary object
         """
         pass
 
@@ -272,8 +285,8 @@ class Boundary(ABC):
         """
         Get the associated type of that boundary
 
-        :return: Type of boundary
-        :rtype: BoundaryType
+        Returns:
+            BoundaryType: simple boundary type
         """
         pass
 
@@ -297,18 +310,20 @@ class RawCell(NamedTuple):
 
 
 class RawInlet(NamedTuple):
-    """Represents an inlet with a target cell and edge, it's boundary type and ghost cell elevation"""
-    cell: int
-    edge: int
-    boundary_type: int
-    ghost_cell_bed_elevation: float
+    """Represents an inlet boundary"""
+    cell: int # target cell
+    edge: int # target edge
+    boundary_type: int # deprecated boundary type number
+    ghost_cell_bed_elevation: float # bathymetry value of the ghost cell
+    group_number: int # group number to which the inlet belongs
 
 class RawOutlet(NamedTuple):
-    """Represents an outlet with a target cell and edge, it's boundary type and ghost cell elevation"""
-    cell: int
-    edge: int
-    boundary_type: int
-    ghost_cell_bed_elevation: float
+    """Represents an outlet boundary"""
+    cell: int # target cell
+    edge: int # target edge
+    boundary_type: int # deprecated boundary type number
+    ghost_cell_bed_elevation: float # bathymetry value of the ghost cell
+    group_number: int # group number to which the outlet belongs
 
 
 class Mesh(ABC):
@@ -322,13 +337,22 @@ class Mesh(ABC):
         rawVertices: Iterable[RawVertex],
         rawCells: Iterable[RawCell],
         inlet: Iterable[RawInlet],
-        outlet: Iterable[RawOutlet]
+        outlet: Iterable[RawOutlet],
+        out_boundary_origin: dict[Boundary, RawInlet|RawOutlet]
     ) -> 'Mesh':
         """
-        Create a mesh from raw informations
+        Create a mesh from raw information.
 
-        :return: Associated completed mesh
-        :rtype: Mesh
+        Args:
+            rawVertices (Iterable[RawVertex]): All vertices of the mesh in raw format.
+            rawCells (Iterable[RawCell]): All cells of the mesh in raw format.
+            inlet (Iterable[RawInlet]): All inlet boundaries of the mesh in raw format.
+            outlet (Iterable[RawOutlet]): All outlet boundaries of the mesh in raw format.
+            out_boundaries association (dict[Boundary, RawInlet|RawOutlet]): Empty dictionary that will be populated
+                with boundaries associations.
+
+        Returns:
+            Mesh: Complete mesh with all parameters included in it.
         """
         pass
 
@@ -337,8 +361,8 @@ class Mesh(ABC):
         """
         Get the total surface area of the mesh.
 
-        :return: Total surface area.
-        :rtype: float
+        Returns:
+            float: total mesh surface
         """
         pass
 
@@ -347,8 +371,8 @@ class Mesh(ABC):
         """
         Get the number of vertices in the mesh.
 
-        :return: Number of vertices
-        :rtype: int
+        Returns:
+            int: number if vertices in the mesh
         """
         pass
 
@@ -357,8 +381,8 @@ class Mesh(ABC):
         """
         Get the list of all vertices in the mesh.
 
-        :return: List of vertices
-        :rtype: list[Node]
+        Returns:
+            Iterable[Vertex]: all vertices in the mesh
         """
         pass
 
@@ -367,8 +391,8 @@ class Mesh(ABC):
         """
         Get the number of edges in the mesh.
 
-        :return: Number of edges.
-        :rtype: int
+        Returns:
+            int: number of edges in the mesh
         """
         pass
 
@@ -377,8 +401,8 @@ class Mesh(ABC):
         """
         Get the list of edges in the mesh.
 
-        :return: List of edges.
-        :rtype: list[Edge]
+        Returns:
+            Iterable[Edge]: all edges in the mesh
         """
         pass
 
@@ -387,8 +411,8 @@ class Mesh(ABC):
         """
         Get the number of cells in the mesh.
 
-        :return: Number of cells.
-        :rtype: int
+        Returns:
+            int: number of cells in the mesh
         """
         pass
 
@@ -397,8 +421,8 @@ class Mesh(ABC):
         """
         Get the list of cells in the mesh.
 
-        :return: List of cells.
-        :rtype: list[Cell]
+        Returns:
+            Iterable[Cell]: all cells in the mesh
         """
         pass
 
@@ -407,8 +431,8 @@ class Mesh(ABC):
         """
         Get the number of boundaries associated with edges in the mesh.
 
-        :return: Number of boundary.
-        :rtype: int
+        Returns:
+            int: number of boundaries in the mesh
         """
         pass
 
@@ -417,7 +441,7 @@ class Mesh(ABC):
         """
         Get the list of boundaries associated with edges in the mesh.
 
-        :return: List of boundaries
-        :rtype: list[Boundary]
+        Returns:
+            Iterable[Boundary]: all boundaries of the mesh
         """
         pass

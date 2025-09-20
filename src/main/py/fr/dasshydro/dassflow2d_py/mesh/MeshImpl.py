@@ -347,7 +347,7 @@ def _create_partial_cells(rawCells: Iterable[RawCell], vertices_dict: dict[int, 
 
 def _create_partial_edges(cells: list[Cell], vertices_dict: dict[int, Vertex]) -> list[Edge]:
     """
-    Creates a list of partial Edge objects from cell and vertex informations.
+    Creates a list of partial Edge objects from cell and vertex information.
     Created Edges are partial as they lack coherence on the 'getCells' method
 
     Args:
@@ -484,11 +484,12 @@ def _process_inlets_and_outlets(
     cells: list[Cell],
     boundaries: list[Boundary],
     inlets: Iterable[RawInlet],
-    outlets: Iterable[RawOutlet]
+    outlets: Iterable[RawOutlet],
+    out_boundary_origin: dict[Boundary, RawInlet|RawOutlet]
 ):
     """
     Processes inlets and outlets, setting correct boundary type to corresponding Boundary object.
-    This function uses a naive approach to resolve target edge from inlet/outlet raw informations.
+    This function uses a naive approach to resolve target edge from inlet/outlet raw information.
     This approach don't guarantee landing on the good edge and make tests unreliable on this information.
     This issue should be investigated, Issue N°: #10
 
@@ -515,13 +516,16 @@ def _process_inlets_and_outlets(
             target_edge = target_cell.getEdges()[edge_index]
             # this can fail as resolving target edge using index in Cell#getEdges() is a naive approach
             target_boundary = boundary_edge_dict.get(target_edge)
-            
+
             if target_boundary is None:
 
                 # this print should be replaced with a proper logging method
                 print(f"Warning: Target edge of inlet {raw_boundary.cell} is not a boundary edge.")
 
             else:
+
+                # remember boundary association
+                out_boundary_origin[target_boundary] = raw_boundary
 
                 # casting to use 'setType' method
                 target_boundary = cast(BoundaryImpl, target_boundary)
@@ -554,7 +558,8 @@ class MeshImpl(Mesh):
         rawVertices: Iterable[RawVertex],
         rawCells: Iterable[RawCell],
         inlets: Iterable[RawInlet],
-        outlets: Iterable[RawOutlet]
+        outlets: Iterable[RawOutlet],
+        out_boundary_origin: dict[Boundary, RawInlet|RawOutlet]
     ) -> Mesh:
         """
         Creates a Mesh object from raw vertex, cell, inlet, and outlet data.
@@ -568,13 +573,14 @@ class MeshImpl(Mesh):
         Returns:
             A fully constructed Mesh object.
         """
+        assert len(out_boundary_origin) == 0
         vertices_dict = _create_partial_vertices_dict(rawVertices)
         cells = _create_partial_cells(rawCells, vertices_dict)
         edges = _create_partial_edges(cells, vertices_dict)
         boundaries = _create_boundaries(edges)
         _add_cell_edges(edges)
         _add_neighbors_to_cells(cells)
-        _process_inlets_and_outlets(cells, boundaries, inlets, outlets)
+        _process_inlets_and_outlets(cells, boundaries, inlets, outlets, out_boundary_origin)
 
         return MeshImpl(
             vertices=list(vertices_dict.values()),
