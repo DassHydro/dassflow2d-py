@@ -49,13 +49,13 @@ class DassflowMeshReader(MeshReader):
                 parts = inlet_line.split()
 
                 # Parse mandatory fields
-                cell_id, edge_id, boundary_type = map(int, parts[:3])
+                cell_id, edge_id = map(int, parts[:2])
                 ghost_cell_bed_elevation = float(parts[3])
 
                 # Parse optional group_number
                 group_number = int(parts[4]) if len(parts) > 4 else 1 # USE 1 as default group number for inlets
 
-                raw_inlet = RawInlet(cell_id, edge_id, boundary_type, ghost_cell_bed_elevation, group_number)
+                raw_inlet = RawInlet(cell_id, edge_id, ghost_cell_bed_elevation, group_number)
 
                 inlet.append(raw_inlet)
 
@@ -68,13 +68,13 @@ class DassflowMeshReader(MeshReader):
                 parts = outlet_line.split()
 
                 # Parse mandatory fields
-                cell_id, edge_id, boundary_type = map(int, parts[:3])
+                cell_id, edge_id = map(int, parts[:2])
                 ghost_cell_bed_elevation = float(parts[3])
 
                 # Parse optional group_number
                 group_number = int(parts[4]) if len(parts) > 4 else inlets_groups_number # USE number of inlets groups
 
-                raw_outlet = RawOutlet(cell_id, edge_id, boundary_type, ghost_cell_bed_elevation, group_number)
+                raw_outlet = RawOutlet(cell_id, edge_id, ghost_cell_bed_elevation, group_number)
                 outlet.append(raw_outlet)
 
         # Gather all lists and return as tuple

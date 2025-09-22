@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Type
+from typing import Type, Iterable, Sequence
 
 from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
 from fr.dasshydro.dassflow2d_py.input.file_reading import extract, next_line
@@ -36,7 +36,7 @@ default_boundary_condition_class: dict[str, Type[BoundaryCondition]] = {
 
 def createBoundaryConditions(
     configuration: Configuration,
-    boundaries: list[Boundary],
+    boundaries: Iterable[Boundary] | Sequence[Boundary],
     boundaries_group: dict[Boundary, int],
     boundary_condition_class: dict[str, Type[BoundaryCondition]] = default_boundary_condition_class
 ) -> list[BoundaryCondition]:
@@ -45,7 +45,7 @@ def createBoundaryConditions(
 
     Args:
         configuration (Configuration): configuration containing file paths needed
-        boundaries (list[Boundary]): all boundaries object that will be linked to boundary conditions
+        boundaries (Iterable[Boundary]|Sequence[Boundary]): all boundaries object that will be linked to boundary conditions
         boundaries_group (dict[Boundary, int]): associated group for every boundary in boundaries
 
     Raises:

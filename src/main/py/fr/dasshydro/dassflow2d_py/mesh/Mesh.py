@@ -313,16 +313,14 @@ class RawInlet(NamedTuple):
     """Represents an inlet boundary"""
     cell: int # target cell
     edge: int # target edge
-    boundary_type: int # deprecated boundary type number
-    ghost_cell_bed_elevation: float # bathymetry value of the ghost cell
+    ghost_cell_bathymetry: float # bathymetry value of the ghost cell
     group_number: int # group number to which the inlet belongs
 
 class RawOutlet(NamedTuple):
     """Represents an outlet boundary"""
     cell: int # target cell
     edge: int # target edge
-    boundary_type: int # deprecated boundary type number
-    ghost_cell_bed_elevation: float # bathymetry value of the ghost cell
+    ghost_cell_bathymetry: float # bathymetry value of the ghost cell
     group_number: int # group number to which the outlet belongs
 
 
