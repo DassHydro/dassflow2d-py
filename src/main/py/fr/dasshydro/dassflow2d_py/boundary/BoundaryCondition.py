@@ -17,7 +17,7 @@ class BoundaryCondition(ABC):
         pass
 
     @abstractmethod
-    def update(self, mesh: Mesh, bathymetry: dict[Cell, float], current_state: TimeStepState, current_simulation_time: float):
+    def update(self, bathymetry: dict[Cell, float], current_state: TimeStepState, current_simulation_time: float):
         """
         Do all necessary operations for a boundary condition to correctly force it's condition
 
@@ -30,7 +30,13 @@ class BoundaryCondition(ABC):
         pass
 
 
+# implementations imports here ...
+from fr.dasshydro.dassflow2d_py.boundary.Discharge1 import Discharge1
+from fr.dasshydro.dassflow2d_py.boundary.RatingCurve import RatingCurve
+
 default_boundary_condition_class: dict[str, Type[BoundaryCondition]] = {
+    "discharg1": Discharge1,
+    "ratcurve": RatingCurve
 }
 
 

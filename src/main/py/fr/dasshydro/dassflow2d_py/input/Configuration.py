@@ -97,8 +97,8 @@ class Configuration:
         if 'hydrographs-file' in values:
             self.hydrographs_file = values['hydrographs-file']
 
-        if 'rating-curves-file' in values:
-            self.rating_curves_file = values['rating-curves-file']
+        if 'rating-curve-file' in values:
+            self.rating_curves_file = values['rating-curve-file']
 
         if 'manning-file' in values:
             self.manning_file = values['manning-file']
