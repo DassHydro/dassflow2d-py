@@ -1,5 +1,6 @@
 import os
 from enum import Enum
+import logging
 import h5py #type: ignore
 import vtk #type: ignore
 
@@ -12,6 +13,10 @@ class OutputMode(Enum):
     GNUPLOT = 'gnuplot'
     HDF5 = 'hdf5'
 
+def _path_is_valid(path):
+    parent_dir = os.path.dirname(path)
+    return parent_dir and os.path.exists(parent_dir)
+
 class ResultWriter:
     """
     Manage program outputs along it's simulation time, this class is supposed to know when and how to write
@@ -19,15 +24,19 @@ class ResultWriter:
     """
 
     def __init__(self, mesh: Mesh, result_file_path: str, delta_to_write: float):
-        if not os.path.exists(result_file_path) or not os.path.isdir(result_file_path):
-            raise ValueError("result file folder should be a valid existing folder")
+        if (os.path.exists(result_file_path) and not os.path.isdir(result_file_path)) or not _path_is_valid(result_file_path):
+            raise ValueError("result file folder should be a valid folder")
         if delta_to_write <= 0.0:
             raise ValueError("dtw should always be positive and non-zero")
+
+        if not os.path.exists(result_file_path):
+            os.mkdir(result_file_path)
+
         self.mesh = mesh
         self.result_folder = result_file_path
         self.dtw = delta_to_write
         self.last_quotient = 0
-    
+
     def isTimeToWrite(self, current_simulation_time: float) -> bool:
         quotient = current_simulation_time // self.dtw
         if quotient > self.last_quotient:
@@ -35,7 +44,7 @@ class ResultWriter:
             self.last_quotient = int(quotient)
             return True
         return False
-    
+
     def save(self, time_step_state: TimeStepState, current_simulation_time: float):
         """
         This function write raw results contained in the provided time step state.
