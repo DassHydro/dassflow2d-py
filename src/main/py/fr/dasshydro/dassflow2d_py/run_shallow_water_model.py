@@ -29,7 +29,8 @@ from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshRead
 from fr.dasshydro.dassflow2d_py.input.CellBathymetryDict import CellBathymetryDict
 from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl
+from fr.dasshydro.dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition, createBoundaryConditions
+from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl, Boundary, RawInlet, RawOutlet
 from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
 import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
 
@@ -61,13 +62,37 @@ def run_shallow_water_model(configuration: Configuration):
 
     ##################### Initialize ######################
 
-    # Create the mesh
-    mesh = MeshImpl.createFromPartialInformation(*raw_mesh_info)
+    ### Create the mesh
+    boundary_origin: dict[Boundary, RawInlet|RawOutlet] = {}
+    mesh = MeshImpl.createFromPartialInformation(*(*raw_mesh_info, boundary_origin))
 
-    # Create bathymetry dictionary
+    ### Create boundary condition
+    # create boundary groups
+    boundary_groups = {}
+    for boundary in mesh.getBoundaries():
+        raw_boundary = boundary_origin.get(boundary)
+        if raw_boundary is None:
+            boundary_groups[boundary] = 0
+        else:
+            boundary_groups[boundary] = raw_boundary.group_number
+
+    boundary_conditions = createBoundaryConditions(
+        configuration,
+        mesh.getBoundaries(),
+        boundary_groups
+    )
+
+    ### Create bathymetry dictionary
     bathymetry = CellBathymetryDict(cell_bathymetry)
 
-    # Create initial state
+    # adds ghost cell bathymetry
+    for flow_boundary, raw_boundary in boundary_origin.items():
+        boundary_edge = flow_boundary.getEdge()
+        ghost_cell = boundary_edge.getGhostCell()
+        assert ghost_cell.isGhost()
+        bathymetry[ghost_cell] = raw_boundary.ghost_cell_bathymetry
+
+    ### Create initial state
     raw_initial_state = initial_state_reader.read(initial_state_file, mesh.getCellNumber())
     node_dictionary = {}
     for i, cell in enumerate(mesh.getCells()):
@@ -95,6 +120,11 @@ def run_shallow_water_model(configuration: Configuration):
 
     # Iterative call loop
     while current_simulation_time < simulation_time:
+
+        # update all boundary conditions
+        for bc in boundary_conditions:
+            bc.update(bathymetry, current_state, current_simulation_time)
+
         # get time step
         if use_cfl:
             delta = dt.get_delta_using_cfl(current_state, mesh)
@@ -126,7 +156,7 @@ def main():
         type=str,
         help="Configuration file path",
         default="inputs/config.yaml",
-        required=False
+        required=True
     )
     args_name.append("config_file")
 
@@ -177,7 +207,7 @@ def main():
     args = parser.parse_args()
 
     # Load configuration from file
-    configuration = load_from_file(args.config)
+    configuration = load_from_file(args.config_file)
 
     # Update configuration values with command line arguments
     configuration_values = {}

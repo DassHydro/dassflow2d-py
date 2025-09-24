@@ -1,7 +1,9 @@
 import unittest
 import os
+
 from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
 from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
+from fr.dasshydro.dassflow2d_py.output.ResultWriter import OutputMode
 
 class TestConfiguration(unittest.TestCase):
 
@@ -12,11 +14,15 @@ class TestConfiguration(unittest.TestCase):
         # Set of configuration tested
         temporal_scheme = TemporalScheme.EULER
         spatial_scheme = SpatialScheme.MUSCL
-        mesh_file = 'mesh.geo'
+        mesh_file = 'channel.geo'
+        bc_file = 'boundary_condition.txt'
         initial_state_file = 'dof_init.txt'
         bathymetry_file = 'bathymetry.txt'
+        hydrographs_file = 'hydrographs.txt'
+        rating_curves_file = 'rat_curves.txt'
         manning_file = 'manning.txt'
         result_path = 'output/'
+        output_mode = OutputMode.HDF5
         simulation_time = 42000
         delta_to_write = 100
         is_delta_adaptative = True
@@ -27,10 +33,14 @@ class TestConfiguration(unittest.TestCase):
             'temporal-scheme': temporal_scheme.value,
             'spatial-scheme': spatial_scheme.value,
             'mesh-file': mesh_file,
+            'boundary-condition-file': bc_file,
             'initial-state-file': initial_state_file,
             'bathymetry-file': bathymetry_file,
+            'hydrographs-file': hydrographs_file,
+            'rating-curve-file': rating_curves_file,
             'manning-file': manning_file,
             'result-path': result_path,
+            'output-mode': output_mode.value,
             'simulation-time': str(simulation_time),
             'delta-to-write': str(delta_to_write),
             'is-delta-adaptative': str(is_delta_adaptative),

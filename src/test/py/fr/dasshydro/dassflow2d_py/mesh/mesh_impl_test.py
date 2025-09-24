@@ -17,7 +17,7 @@ class TestMeshImpl(unittest.TestCase):
         raw_info = DassflowMeshReader().read(self.mesh_path)
         raw_vertices, raw_cells, raw_inlets, raw_outlets = raw_info[:4]
         # Build mesh
-        self.mesh = MeshImpl.createFromPartialInformation(raw_vertices, raw_cells, raw_inlets, raw_outlets)
+        self.mesh = MeshImpl.createFromPartialInformation(raw_vertices, raw_cells, raw_inlets, raw_outlets, {})
         # Read oracle
         with open(self.oracle_path, 'r') as file:
             self.oracle_data = yaml.safe_load(file)
