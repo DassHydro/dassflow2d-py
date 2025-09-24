@@ -1,7 +1,24 @@
 import argparse
+from enum import Enum, auto
 
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
+from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
 from fr.dasshydro.dassflow2d_py.ShallowWaterModel import ShallowWaterModel, LoopListener
+
+
+# Define an enum for configuration sources
+class ConfigSource(Enum):
+    DEFAULT = auto()
+    CONFIG_FILE = auto()
+    COMMAND_ARGS = auto()
+
+
+# ANSI color codes for printing
+COLORS = {
+    ConfigSource.DEFAULT: "\033[93m",     # Yellow
+    ConfigSource.CONFIG_FILE: "\033[94m", # Blue
+    ConfigSource.COMMAND_ARGS: "\033[92m" # Green
+}
+RESET_COLOR = "\033[0m"
 
 
 def main():
@@ -33,7 +50,9 @@ def main():
     args = parser.parse_args()
 
     # Load configuration from file
-    configuration = load_from_file(args.config_file)
+    configuration = Configuration(ConfigSource.DEFAULT)
+
+    configuration.update_from_file(args.config_file, ConfigSource.CONFIG_FILE)
 
     # Update configuration values with command line arguments
     configuration_values = {}
@@ -43,7 +62,14 @@ def main():
         if arg_value is not None:
             configuration_values[arg_namespace] = arg_value
 
-    configuration.updateValues(configuration_values)
+    configuration.updateValues(configuration_values, ConfigSource.COMMAND_ARGS)
+
+    # Print where each parameters comes from
+    max_param_length = max(len(param) for param in configuration.getSources().keys())
+    for parameter_namespace, parameter_source in configuration.getSources().items():
+        color = COLORS.get(parameter_source, "")
+        reset = RESET_COLOR
+        print(f"{parameter_namespace:<{max_param_length}} : {color}{parameter_source.name.replace('_', ' ').title()}{reset}")
 
     shallow_water_model = ShallowWaterModel(configuration)
 
