@@ -30,7 +30,7 @@ def next_line(file: TextIOWrapper) -> str:
         # Strip whitespace from the string
         stripped_line = line.strip()
         # Check if the string is empty or a comment
-        return not stripped_line or stripped_line.startswith('#')
+        return not stripped_line or stripped_line.startswith('#') or stripped_line.startswith('!')
     return _read_next(file, ignore_line)
 
 def extract(file: TextIOWrapper, type_tuple: tuple) -> tuple:
