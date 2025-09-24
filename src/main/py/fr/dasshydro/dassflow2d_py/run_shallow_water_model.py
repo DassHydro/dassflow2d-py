@@ -5,62 +5,30 @@ from fr.dasshydro.dassflow2d_py.ShallowWaterModel import ShallowWaterModel, Loop
 
 
 def main():
-    args_name = []
     # Setup argument parser
     parser = argparse.ArgumentParser(description="Process a folder path")
-
-    parser.add_argument(
-        "--config-file", "-c",
-        type=str,
-        help="Configuration file path",
-        default="inputs/config.yaml",
-        required=True
-    )
-    args_name.append("config_file")
-
-    parser.add_argument(
-        "--mesh-type", "-mt",
-        type=str,
-        choices=["basic", "dassflow"],
-        help="Temporal scheme for resolution method",
-        required=False
-    )
-    args_name.append("mesh_type")
-
-    parser.add_argument(
-        "--mesh-shape", "-ms",
-        type=str,
-        choices=["triangular", "quadrilateral", "hybrid"],
-        help="Temporal scheme for resolution method",
-        required=False
-    )
-    args_name.append("mesh_shape")
-
-    parser.add_argument(
-        "--mesh-file", "-m",
-        type=str,
-        help="Mesh file name",
-        required=False
-    )
-    args_name.append("mesh_file")
-
-    parser.add_argument(
-        "--temporal-scheme", "-ts",
-        type=str,
-        choices=["euler", "rk2"],
-        help="Temporal scheme for resolution method",
-        required=False
-    )
-    args_name.append("temporal_scheme")
-
-    parser.add_argument(
-        "--spatial-scheme", "-ss",
-        type=str,
-        choices=["first", "muscl"],
-        help="Spatial scheme for resolution method",
-        required=False
-    )
-    args_name.append("spatial_scheme")
+    args_fields = [
+        ("config_file", ("--config-file", "-c"), "Configuration file path", None, True),
+        ("temporal_scheme", ("--temporal-scheme", "-ts"), "Temporal scheme for resolution method", ["euler", "ssp-rk2", "imex"], False),
+        ("spatial_scheme", ("--spatial-scheme", "-ss"), "Spatial scheme for resolution method", ["hllc", "muscl", "low-froude"], False),
+        ("mesh_file", ("--mesh-file", "-mf"), "Mesh file path", None, False),
+        ("boundary_condition_file", ("--boundary-condition-file", "-bcf"), "Boundary condition description file path", None, False),
+        ("initial_state_file", ("--initial-state-file", "-isf"), "Initial state file path", None, False),
+        ("bathymetry_file", ("--bathymetry-file", "-bf"), "Bathymetry file path UNUSED", None, False),
+        ("hydrographs_file", ("--hydrographs-file", "-hf"), "Hydrographs file path", None, False),
+        ("rating_curve_file", ("--rating-curve-file", "-rcf"), "Rating curves file path", None, False),
+        ("manning_file", ("--manning-file", "-mnf"), "Manning file path UNUSED", None, False),
+        ("result_path", ("--result-path", "-rp"), "Result folder path", None, False),
+        ("output_mode", ("--output-mode", "-om"), "Output mode", ["vtk", "tecplot", "gnuplot", "hdf5"], False),
+        ("simulation_time", ("--simulation-time", "-st"), "Total simulation duration", None, False),
+        ("delta_to_write", ("--delta-to-write", "-dtw"), "Time needed to write a snapshot of the state", None, False),
+        ("is_delta_adaptative", ("--is-delta-adaptative", "-da"), "Does delta time adapt to mesh", None, False),
+        ("default_delta", ("--default-delta", "-dd"), "Default value of delta (in case of non-adaptive)", None, False)
+    ]
+    for arg_fields in args_fields:
+        # unpack structure
+        arg_namespace, arg_aliases, arg_help, arg_choices, arg_required = arg_fields
+        parser.add_argument(*arg_aliases, help=arg_help, choices=arg_choices, required=arg_required)
 
     args = parser.parse_args()
 
@@ -69,10 +37,11 @@ def main():
 
     # Update configuration values with command line arguments
     configuration_values = {}
-    for arg_name in args_name:
-        arg_value = getattr(args, arg_name)
+    for arg_fields in args_fields:
+        arg_namespace = arg_fields[0]
+        arg_value = getattr(args, arg_namespace)
         if arg_value is not None:
-            configuration_values[arg_name] = arg_value
+            configuration_values[arg_namespace] = arg_value
 
     configuration.updateValues(configuration_values)
 
