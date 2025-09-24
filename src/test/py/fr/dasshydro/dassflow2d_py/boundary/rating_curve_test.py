@@ -67,11 +67,11 @@ class MockBoundary(Boundary):
 class TestRatingCurve(unittest.TestCase):
     def setUp(self):
         # Setup configuration
-        self.config = Configuration()
+        self.config = Configuration(None)
         rating_curve_filepath = os.path.join('src', 'test', 'resources', 'boundary', 'rating_curves.txt')
         self.config.updateValues({
             "rating-curve-file": rating_curve_filepath
-        })
+        }, None)
 
         # Setup cells and edges
         self.small_cell = MockCell()
