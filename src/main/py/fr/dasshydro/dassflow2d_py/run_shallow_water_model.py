@@ -123,7 +123,7 @@ def run_shallow_water_model(configuration: Configuration):
 
         # update all boundary conditions
         for bc in boundary_conditions:
-            bc.update(mesh, bathymetry, current_state, current_simulation_time)
+            bc.update(bathymetry, current_state, current_simulation_time)
 
         # get time step
         if use_cfl:
