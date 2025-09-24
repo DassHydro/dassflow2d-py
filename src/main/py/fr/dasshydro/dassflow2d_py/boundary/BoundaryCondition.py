@@ -3,7 +3,7 @@ from typing import Type, Iterable, Sequence
 
 from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
 from fr.dasshydro.dassflow2d_py.input.file_reading import extract, next_line
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Mesh, Cell, Boundary, BoundaryType
+from fr.dasshydro.dassflow2d_py.mesh.Mesh import Cell, Boundary, BoundaryType
 from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
 
 
@@ -33,10 +33,12 @@ class BoundaryCondition(ABC):
 # implementations imports here ...
 from fr.dasshydro.dassflow2d_py.boundary.Discharge1 import Discharge1
 from fr.dasshydro.dassflow2d_py.boundary.RatingCurve import RatingCurve
+from fr.dasshydro.dassflow2d_py.boundary.Wall import Wall
 
 default_boundary_condition_class: dict[str, Type[BoundaryCondition]] = {
     "discharg1": Discharge1,
-    "ratcurve": RatingCurve
+    "ratcurve": RatingCurve,
+    "wall": Wall
 }
 
 

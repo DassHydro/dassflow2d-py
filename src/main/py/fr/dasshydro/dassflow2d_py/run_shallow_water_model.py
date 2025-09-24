@@ -1,150 +1,8 @@
-# imports
+import argparse
 
 from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
-from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
+from fr.dasshydro.dassflow2d_py.ShallowWaterModel import ShallowWaterModel, LoopListener
 
-def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
-    """
-    Decide what ResolutionMethod to use based on temporal and spatial schemes
-
-    :param Configuration configuration: Configuration of the launch
-    :return: An instance of ResolutionMethod suited for selected schemes
-    :rtype: ResolutionMethod
-    """
-    temporal_scheme = configuration.getTemporalScheme()
-    spatial_scheme = configuration.getSpatialScheme()
-
-    if temporal_scheme == TemporalScheme.EULER and spatial_scheme == SpatialScheme.HLLC:
-
-        # TODO: configure euler time step here (porosity, infiltration...)
-        from fr.dasshydro.dassflow2d_py.resolution.EulerTimeStep import EulerTimeStep
-        return EulerTimeStep(configuration)
-
-    else:
-
-        raise NotImplementedError("As for now, only Euler with HLLC is supported.")
-
-
-from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-from fr.dasshydro.dassflow2d_py.input.CellBathymetryDict import CellBathymetryDict
-from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
-from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
-from fr.dasshydro.dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition, createBoundaryConditions
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl, Boundary, RawInlet, RawOutlet
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
-import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
-
-def run_shallow_water_model(configuration: Configuration):
-    """
-    Configure and run the shallow water model using data from the specified input folder.
-
-    This function is responsible for setting up any necessary data required for the shallow water model and then executing the
-    model using the configured data.
-
-    :param Configuration configuration: Configuration of the launch
-    :raises: NotImplementedError: This function is not implemented yet and will raise a NotImplementedError when called.
-    """
-
-    ####################### Reading #######################
-
-    # Read mesh
-    mesh_reader = DassflowMeshReader()
-    mesh_file = configuration.getMeshFile()
-    raw_info = mesh_reader.read(mesh_file)
-    raw_mesh_info = raw_info[:4]
-
-    # Read bathymetry
-    _, cell_bathymetry = raw_info[4:6]
-
-    # Read first time step state
-    initial_state_reader = InitialStateReader()
-    initial_state_file = configuration.getInitialStateFile()
-
-    ##################### Initialize ######################
-
-    ### Create the mesh
-    boundary_origin: dict[Boundary, RawInlet|RawOutlet] = {}
-    mesh = MeshImpl.createFromPartialInformation(*(*raw_mesh_info, boundary_origin))
-
-    ### Create boundary condition
-    # create boundary groups
-    boundary_groups = {}
-    for boundary in mesh.getBoundaries():
-        raw_boundary = boundary_origin.get(boundary)
-        if raw_boundary is None:
-            boundary_groups[boundary] = 0
-        else:
-            boundary_groups[boundary] = raw_boundary.group_number
-
-    boundary_conditions = createBoundaryConditions(
-        configuration,
-        mesh.getBoundaries(),
-        boundary_groups
-    )
-
-    ### Create bathymetry dictionary
-    bathymetry = CellBathymetryDict(cell_bathymetry)
-
-    # adds ghost cell bathymetry
-    for flow_boundary, raw_boundary in boundary_origin.items():
-        boundary_edge = flow_boundary.getEdge()
-        ghost_cell = boundary_edge.getGhostCell()
-        assert ghost_cell.isGhost()
-        bathymetry[ghost_cell] = raw_boundary.ghost_cell_bathymetry
-
-    ### Create initial state
-    raw_initial_state = initial_state_reader.read(initial_state_file, mesh.getCellNumber())
-    node_dictionary = {}
-    for i, cell in enumerate(mesh.getCells()):
-        node_dictionary[cell] = raw_initial_state[i]
-    initial_state = TimeStepState(node_dictionary)
-
-    # Instantiate used resolution method based on parameters
-    resolution_method = get_resolution_method(configuration)
-
-    # Initialize time variables
-    use_cfl = configuration.isDeltaAdaptative()
-    delta = configuration.getDefaultDelta() # used only if not adaptative
-    delta_to_write = configuration.getDeltaToWrite()
-
-    # Instantiate result writer
-    result_file_path = configuration.getResultFilePath()
-    result_writer = ResultWriter(mesh, result_file_path, delta_to_write)
-
-    # Initialize runner variables
-    current_state = initial_state
-    simulation_time = configuration.getSimulationTime()
-    current_simulation_time = 0.0
-
-    ######################### Run #########################
-
-    # Iterative call loop
-    while current_simulation_time < simulation_time:
-
-        # update all boundary conditions
-        for bc in boundary_conditions:
-            bc.update(bathymetry, current_state, current_simulation_time)
-
-        # get time step
-        if use_cfl:
-            delta = dt.get_delta_using_cfl(current_state, mesh)
-
-        # resolve using resolution method
-        current_state = resolution_method.resolve(current_state, delta, mesh, bathymetry)
-
-        current_simulation_time += delta
-
-        if result_writer.isTimeToWrite(current_simulation_time):
-
-            result_writer.save(current_state, current_simulation_time)
-
-    ############### Results post-treatment ################
-
-    output_mode = configuration.getOutputMode()
-
-    result_writer.writeAll(output_mode)
-
-import argparse
 
 def main():
     args_name = []
@@ -218,7 +76,20 @@ def main():
 
     configuration.updateValues(configuration_values)
 
-    run_shallow_water_model(configuration)
+    shallow_water_model = ShallowWaterModel(configuration)
+
+    """
+    EXAMPLE LISTENER USE CASE
+    class PrintLoopListener(LoopListener):
+        def endOfLoop(self, current_delta, current_state, current_simulation_time):
+            print(current_simulation_time)
+
+    loop_listener = PrintLoopListener()
+
+    shallow_water_model.subscribe(loop_listener)
+    """
+
+    shallow_water_model.run()
 
 if __name__ == "__main__":
     main()
