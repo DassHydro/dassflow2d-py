@@ -20,43 +20,6 @@ The algorithm for such implementation is already done. Here is the pseudo-code:
 
 You can see extensive description of future work [here](docs/markdown/todo.md)
 
-```plaintext
-Algorithm 1: Solve Euler HLLC
-Data: Uⁿ, Δ, bathymetry
-Result: Uⁿ⁺¹
-
-1  flux_arêtes ← [];
-2  for i ← 0 to longueur(arêtes) do
-3      k ← arêtes[i].cellules₀;
-4      Uₖ ← Uₖⁿ;
-5      hₖ* ← well_balance(Uₖ.h);
-6      Uₖ* ← (hₖ*, hₖ*Uₖ.u, hₖ*Uₖ.v);
-7      kₑ ← arêtes[i].cellules₁;
-8      Uₖₑ ← Uₖₑⁿ;
-9      hₖₑ* ← well_balance(Uₖₑ.h);
-10     Uₖₑ* ← (hₖₑ*, hₖₑ*Uₖₑ.u, hₖₑ*Uₖₑ.v);
-11     Sₚ ← compute_sp(Uₖ.h, hₖ*);
-12     normal ← arêtes[i].normal;
-13     flux ← hllc_solver(Uₖ*, Uₖₑ*, normal);
-14     flux_post_rotation ← rotation(R, flux);
-15     id ← arêtes[i].id;
-16     flux_arêtes[id] ← arêtes[i].length × flux_post_rotation + Sₚ;
-17 end
-18 Uⁿ⁺¹ ← [];
-19 for k ← 0 to longueur(cellules) do
-20     arêtes_cellule ← cellules[k].arêtes;
-21     flux_total ← 0;
-22     for i ← 0 to longueur(arêtes_cellule) do
-23         arête ← arêtes_cellule[i];
-24         flux_total ← flux_total + flux_arêtes[arête.id];
-25     end
-26     périmètre ← cellules[k].périmètre;
-27     U̅ₖⁿ⁺¹ ← Uₖⁿ - (Δ / périmètre) × flux_total;
-28     Uⁿ⁺¹ ← correction(U̅ₖⁿ⁺¹);
-29 end
-```
-
-
 ---
 
 ## Setup
