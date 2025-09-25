@@ -27,36 +27,7 @@ Resolution Layer:
 
 The next stepts of the project is to implements the resolution method for euler x hllc.
 The algorithm for such implementation is already done, here is the pseudo-code:
-
-#### Algorithm: Solve Euler HLLC
-
-**Input:** \( U^n \), \( \Delta \), bathymetry
-
-**Output:** \( U^{n+1} \)
-
-1. Initialize `flux_arêtes` as an empty list.
-2. For \( i \gets 0 \) to `longueur(arêtes)`:
-   - \( k \gets \text{arêtes}[i].\text{cellules}_0 \)
-   - \( U_k \gets U^n_k \)
-   - \( h_{k}^{\star} \gets \text{well\_balance}(U_k.h) \)
-   - \( U_{k}^{\star} \gets \begin{pmatrix} h_{k}^{\star} \\ h_{k}^{\star} U_k.u \\ h_{k}^{\star} U_k.v \end{pmatrix} \)
-   - \( k_e \gets \text{arêtes}[i].\text{cellules}_1 \)
-   - \( U_{k_e} \gets U_{k_e}^n \)
-   - \( h_{k_e}^{\star} \gets \text{well\_balance}(U_{k_e}.h) \)
-   - \( U_{k_e}^{\star} \gets \begin{pmatrix} h_{k_e}^{\star} \\ h_{k_e}^{\star} U_{k_e}.u \\ h_{k_e}^{\star} U_{k_e}.v \end{pmatrix} \)
-   - \( S_p \gets \text{compute\_sp}(U_k.h, h_{k}^{\star}) \)
-   - `flux` \( \gets \text{hllc\_solver}(U_{k}^{\star}, U_{k_e}^{\star}, \text{normal}) \)
-   - `flux_post_rotation` \( \gets \text{rotation}(R, \text{flux}) \)
-   - `flux_arêtes[id]` \( \gets \text{arêtes}[i].\text{length} \times \text{flux\_post\_rotation} + S_p \)
-3. For \( k \gets 0 \) to `longueur(cellules)`:
-   - `arêtes_cellule` \( \gets \text{cellules}[k].\text{arêtes} \)
-   - Initialize `flux_total` to 0.
-   - For \( i \gets 0 \) to `longueur(arêtes_cellule)`:
-     - `arête` \( \gets \text{arêtes\_cellule}[i] \)
-     - `flux_total` \( \gets \text{flux\_total} + \text{flux\_arêtes}[\text{arête.id}] \)
-   - `périmètre` \( \gets \text{cellules}[k].\text{périmètre} \)
-   - \( \overline{U}_{k}^{n+1} \gets U^n_k - \left(\frac{\Delta}{\text{périmètre}}\right) \times \text{flux\_total} \)
-   - \( U^{n+1} \gets \text{correction}(\overline{U}_{k}^{n+1}) \)
+<img width="1241" height="1754" alt="pseudo-code" src="https://github.com/user-attachments/assets/04f4be64-80a3-41ae-92ec-fbf0d5807bf4" />
 
 ## Setup
 
