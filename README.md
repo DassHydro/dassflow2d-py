@@ -38,6 +38,17 @@ source .venv/bin/activate
 There is no Anaconda script to use, though you can do the same as with `venv`.
 You will need to create a virtual environment, then use `pip install -r requirements.txt`.
 
+---
+
+## Run
+
+To launch the application, please enter the following command `python dassflow2d` with the correct arguments.
+Change python with whatever python executable name you have (`py`, `python3` ...)
+
+Note that a config file is required, a proper documentation for users is planned but for now you can lookup the `src/main/py/fr/dasshydro/dassflow2d_py/input/Configuration.py` to see all valid keynames in a config file.
+
+---
+
 ## Contributions
 
 This project is open to contributions. Feel free to fork and create a pull request!
