@@ -25,7 +25,7 @@ class TestConfiguration(unittest.TestCase):
         output_mode = OutputMode.HDF5
         simulation_time = 42000
         delta_to_write = 100
-        is_delta_adaptative = True
+        is_delta_adaptive = True
         default_delta = 0.0001
 
         # Apply these parameters
@@ -43,21 +43,21 @@ class TestConfiguration(unittest.TestCase):
             'output-mode': output_mode.value,
             'simulation-time': str(simulation_time),
             'delta-to-write': str(delta_to_write),
-            'is-delta-adaptative': str(is_delta_adaptative),
+            'is-delta-adaptive': str(is_delta_adaptive),
             'default-delta': str(default_delta)
         }, None)
 
         # Test if all have correctly been updated
         self.assertEqual(self.config.getTemporalScheme(), temporal_scheme, "Temporal scheme is not stored correctly")
         self.assertEqual(self.config.getSpatialScheme(), spatial_scheme, "Spatial scheme is not stored correctly")
-        self.assertEqual(self.config.getMeshFile(), mesh_file, "mesh file is not stored correctly")
-        self.assertEqual(self.config.getInitialStateFile(), initial_state_file, "initial state file is not stored correctly")
-        self.assertEqual(self.config.getBathymetryFile(), bathymetry_file, "bathymetry file is not stored correctly")
-        self.assertEqual(self.config.getManningFile(), manning_file, "manning file is not stored correctly")
-        self.assertEqual(self.config.getResultFilePath(), result_path, "result path is not stored correctly")
+        self.assertEqual(self.config.getMeshFilePath(), mesh_file, "mesh file is not stored correctly")
+        self.assertEqual(self.config.getInitialStateFilePath(), initial_state_file, "initial state file is not stored correctly")
+        self.assertEqual(self.config.getBathymetryFilePath(), bathymetry_file, "bathymetry file is not stored correctly")
+        self.assertEqual(self.config.getManningFilePath(), manning_file, "manning file is not stored correctly")
+        self.assertEqual(self.config.getResultFolderPath(), result_path, "result path is not stored correctly")
         self.assertEqual(self.config.getSimulationTime(), simulation_time, "simulation time is not stored correctly")
         self.assertEqual(self.config.getDeltaToWrite(), delta_to_write, "delta to write is not stored correctly")
-        self.assertEqual(self.config.isDeltaAdaptative(), is_delta_adaptative, "whether or not the delta is adaptative is not stored correctly")
+        self.assertEqual(self.config.isDeltaAdaptive(), is_delta_adaptive, "whether or not the delta is adaptive is not stored correctly")
         self.assertEqual(self.config.getDefaultDelta(), default_delta, "default delta is not stored correctly")
 
     def testUpdateValues(self):
@@ -94,20 +94,20 @@ class TestConfiguration(unittest.TestCase):
         expected_result_path = 'output_from_file/'
         expected_simulation_time = 86400
         expected_delta_to_write = 500
-        expected_is_delta_adaptative = False
+        expected_is_delta_adaptive = False
         expected_default_delta = 0.001
 
         # assert that the loaded configuration matches the expected values
         self.assertEqual(self.config.getTemporalScheme(), expected_temporal_scheme, "Temporal scheme from file is not loaded correctly")
         self.assertEqual(self.config.getSpatialScheme(), expected_spatial_scheme, "Spatial scheme from file is not loaded correctly")
-        self.assertEqual(self.config.getMeshFile(), expected_mesh_file, "Mesh file from file is not loaded correctly")
-        self.assertEqual(self.config.getInitialStateFile(), expected_initial_state_file, "Initial state file from file is not loaded correctly")
-        self.assertEqual(self.config.getBathymetryFile(), expected_bathymetry_file, "Bathymetry file from file is not loaded correctly")
-        self.assertEqual(self.config.getManningFile(), expected_manning_file, "Manning file from file is not loaded correctly")
-        self.assertEqual(self.config.getResultFilePath(), expected_result_path, "Result path from file is not loaded correctly")
+        self.assertEqual(self.config.getMeshFilePath(), expected_mesh_file, "Mesh file from file is not loaded correctly")
+        self.assertEqual(self.config.getInitialStateFilePath(), expected_initial_state_file, "Initial state file from file is not loaded correctly")
+        self.assertEqual(self.config.getBathymetryFilePath(), expected_bathymetry_file, "Bathymetry file from file is not loaded correctly")
+        self.assertEqual(self.config.getManningFilePath(), expected_manning_file, "Manning file from file is not loaded correctly")
+        self.assertEqual(self.config.getResultFolderPath(), expected_result_path, "Result path from file is not loaded correctly")
         self.assertEqual(self.config.getSimulationTime(), expected_simulation_time, "Simulation time from file is not loaded correctly")
         self.assertEqual(self.config.getDeltaToWrite(), expected_delta_to_write, "Delta to write from file is not loaded correctly")
-        self.assertEqual(self.config.isDeltaAdaptative(), expected_is_delta_adaptative, "Delta adaptative flag from file is not loaded correctly")
+        self.assertEqual(self.config.isDeltaAdaptive(), expected_is_delta_adaptive, "Delta adaptive flag from file is not loaded correctly")
         self.assertEqual(self.config.getDefaultDelta(), expected_default_delta, "Default delta from file is not loaded correctly")
 
 

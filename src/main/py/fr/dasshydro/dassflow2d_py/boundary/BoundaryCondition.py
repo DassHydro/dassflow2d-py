@@ -63,7 +63,7 @@ def createBoundaryConditions(
         list[BoundaryCondition]: all created boundary conditions
     """
 
-    bc_filepath = configuration.getBoundaryConditionFile()
+    bc_filepath = configuration.getBoundaryConditionFilePath()
 
     # Step 1: Group boundaries by group number
     grouped_boundaries: dict[int, list[Boundary]] = {}

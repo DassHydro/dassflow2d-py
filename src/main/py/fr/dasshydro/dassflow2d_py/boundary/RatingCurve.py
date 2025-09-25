@@ -7,7 +7,7 @@ from fr.dasshydro.dassflow2d_py.input.file_reading import extract, next_line
 
 class RatingCurve(DynamicBoundaryCondition):
     def __init__(self, configuration: Configuration, boundaries, *args):
-        super().__init__(configuration, boundaries, configuration.getRatingCurvesFile, *args)
+        super().__init__(configuration, boundaries, configuration.getRatingCurvesFilePath, *args)
 
     def getBoundaryType(self) -> BoundaryType:
         return BoundaryType.OUTFLOW

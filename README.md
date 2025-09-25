@@ -42,10 +42,14 @@ You will need to create a virtual environment, then use `pip install -r requirem
 
 ## Run
 
-To launch the application, please enter the following command `python dassflow2d` with the correct arguments.
+To launch the application, please enter the following command
+``` bash
+python dassflow2d
+```
+with the correct arguments.
 Change python with whatever python executable name you have (`py`, `python3` ...)
 
-Note that a config file is required, a proper documentation for users is planned but for now you can lookup the `src/main/py/fr/dasshydro/dassflow2d_py/input/Configuration.py` to see all valid keynames in a config file.
+Note that a config file is required, you can find a demo file set in `docs/demo/`
 
 ---
 

@@ -18,7 +18,7 @@ RESULT_PATH = 'result-path'
 OUTPUT_MODE = 'output-mode'
 SIMULATION_TIME = 'simulation-time'
 DELTA_TO_WRITE = 'delta-to-write'
-IS_DELTA_ADAPTATIVE = 'is-delta-adaptative'
+IS_DELTA_ADAPTIVE = 'is-delta-adaptive'
 DEFAULT_DELTA = 'default-delta'
 CONFIG_FILE = 'config_file'
 
@@ -43,7 +43,7 @@ class Configuration:
         OUTPUT_MODE: 'gnuplot',
         SIMULATION_TIME: '10000.0',
         DELTA_TO_WRITE: '100.0',
-        IS_DELTA_ADAPTATIVE: 'False',
+        IS_DELTA_ADAPTIVE: 'False',
         DEFAULT_DELTA: '0.01'
     }
 
@@ -125,9 +125,9 @@ class Configuration:
             self.values[DELTA_TO_WRITE] = float(values[DELTA_TO_WRITE])
             self.sources[DELTA_TO_WRITE] = source
 
-        if IS_DELTA_ADAPTATIVE in values:
-            self.values[IS_DELTA_ADAPTATIVE] = bool(values[IS_DELTA_ADAPTATIVE])
-            self.sources[IS_DELTA_ADAPTATIVE] = source
+        if IS_DELTA_ADAPTIVE in values:
+            self.values[IS_DELTA_ADAPTIVE] = bool(values[IS_DELTA_ADAPTIVE])
+            self.sources[IS_DELTA_ADAPTIVE] = source
 
         if DEFAULT_DELTA in values:
             self.values[DEFAULT_DELTA] = float(values[DEFAULT_DELTA])
@@ -142,28 +142,28 @@ class Configuration:
     def getSpatialScheme(self):
         return self.values[SPATIAL_SCHEME]
 
-    def getMeshFile(self):
+    def getMeshFilePath(self):
         return self.values[MESH_FILE]
 
-    def getBoundaryConditionFile(self):
+    def getBoundaryConditionFilePath(self):
         return self.values[BOUNDARY_CONDITION_FILE]
 
-    def getInitialStateFile(self):
+    def getInitialStateFilePath(self):
         return self.values[INITIAL_STATE_FILE]
 
-    def getBathymetryFile(self):
+    def getBathymetryFilePath(self):
         return self.values[BATHYMETRY_FILE]
 
-    def getHydrographsFile(self):
+    def getHydrographsFilePath(self):
         return self.values[HYDROGRAPHS_FILE]
 
-    def getRatingCurvesFile(self):
+    def getRatingCurvesFilePath(self):
         return self.values[RATING_CURVE_FILE]
 
-    def getManningFile(self):
+    def getManningFilePath(self):
         return self.values[MANNING_FILE]
 
-    def getResultFilePath(self):
+    def getResultFolderPath(self):
         return self.values[RESULT_PATH]
 
     def getOutputMode(self):
@@ -175,8 +175,8 @@ class Configuration:
     def getDeltaToWrite(self) -> float:
         return float(self.values[DELTA_TO_WRITE])
 
-    def isDeltaAdaptative(self) -> bool:
-        return bool(self.values[IS_DELTA_ADAPTATIVE])
+    def isDeltaAdaptive(self) -> bool:
+        return bool(self.values[IS_DELTA_ADAPTIVE])
 
     def getDefaultDelta(self) -> float:
         return float(self.values[DEFAULT_DELTA])

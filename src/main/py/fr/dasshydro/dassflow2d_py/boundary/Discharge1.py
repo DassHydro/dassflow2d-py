@@ -7,7 +7,7 @@ from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
 
 class Discharge1(DynamicBoundaryCondition):
     def __init__(self, configuration: Configuration, boundaries: list[Boundary], *args):
-        super().__init__(configuration, boundaries, configuration.getHydrographsFile, *args)
+        super().__init__(configuration, boundaries, configuration.getHydrographsFilePath, *args)
 
     def getBoundaryType(self) -> BoundaryType:
         return BoundaryType.INFLOW

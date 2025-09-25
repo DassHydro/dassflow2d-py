@@ -110,7 +110,7 @@ class TestRatingCurve(unittest.TestCase):
 
     def test_read_rating_curve(self):
         """Test reading the rating curve from a file."""
-        rating_curve = self.rating_curve._read_dynamic_data(self.config.getRatingCurvesFile(), 2)
+        rating_curve = self.rating_curve._read_dynamic_data(self.config.getRatingCurvesFilePath(), 2)
         expected_rating_curve = {
             0.0000000E+00: 0.5772765E-01,
             0.3600000E+04: 0.5772765E-01,

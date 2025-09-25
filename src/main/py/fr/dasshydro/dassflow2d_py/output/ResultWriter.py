@@ -13,10 +13,6 @@ class OutputMode(Enum):
     GNUPLOT = 'gnuplot'
     HDF5 = 'hdf5'
 
-def _path_is_valid(path):
-    parent_dir = os.path.dirname(path)
-    return parent_dir and os.path.exists(parent_dir)
-
 class ResultWriter:
     """
     Manage program outputs along it's simulation time, this class is supposed to know when and how to write
@@ -24,7 +20,9 @@ class ResultWriter:
     """
 
     def __init__(self, mesh: Mesh, result_file_path: str, delta_to_write: float):
-        if (os.path.exists(result_file_path) and not os.path.isdir(result_file_path)) or not _path_is_valid(result_file_path):
+        if mesh is None:
+            raise ValueError("mesh cannot be null")
+        if result_file_path is None or os.path.isfile(result_file_path):
             raise ValueError("result file folder should be a valid folder")
         if delta_to_write <= 0.0:
             raise ValueError("dtw should always be positive and non-zero")

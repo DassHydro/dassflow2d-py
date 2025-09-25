@@ -119,7 +119,7 @@ class TestDischarge1(unittest.TestCase):
 
     def test_read_hydrograph(self):
 
-        hydrograph = self.discharge._read_dynamic_data(self.config.getHydrographsFile(), 2)
+        hydrograph = self.discharge._read_dynamic_data(self.config.getHydrographsFilePath(), 2)
         expected_hydrograph = {
             0.0000000E+00: 0.5772765E-01,
             0.3600000E+04: 0.5772765E-01,
