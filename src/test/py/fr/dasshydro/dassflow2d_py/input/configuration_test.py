@@ -1,14 +1,14 @@
 import unittest
 import os
 
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
+from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
 from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import OutputMode
 
 class TestConfiguration(unittest.TestCase):
 
     def setUp(self):
-        self.config = Configuration()
+        self.config = Configuration('default')
 
     def testNamespacesValidity(self):
         # Set of configuration tested
@@ -45,7 +45,7 @@ class TestConfiguration(unittest.TestCase):
             'delta-to-write': str(delta_to_write),
             'is-delta-adaptative': str(is_delta_adaptative),
             'default-delta': str(default_delta)
-        })
+        }, None)
 
         # Test if all have correctly been updated
         self.assertEqual(self.config.getTemporalScheme(), temporal_scheme, "Temporal scheme is not stored correctly")
@@ -70,19 +70,19 @@ class TestConfiguration(unittest.TestCase):
         current_value = 0.0001
         if current_value == previous_value:
             current_value += 0.1 # Ensure previous and current values are not the same
-        self.config.updateValues({'default-delta': current_value})
+        self.config.updateValues({'default-delta': current_value}, None)
         self.assertEqual(self.config.getDefaultDelta(), current_value)
         previous_value = current_value
 
         # Second update
         current_value = 0.0578
         # current and previous are already distinct here
-        self.config.updateValues({'default-delta': current_value})
+        self.config.updateValues({'default-delta': current_value}, None)
         self.assertEqual(self.config.getDefaultDelta(), current_value)
 
     def testLoadFromFile(self):
         test_config_path = os.path.join('src', 'test', 'resources', 'input', 'test_config.yml')
-        self.config = load_from_file(test_config_path)
+        self.config.update_from_file(test_config_path, None)
 
         # expected values from the YAML file
         expected_temporal_scheme = TemporalScheme.EULER

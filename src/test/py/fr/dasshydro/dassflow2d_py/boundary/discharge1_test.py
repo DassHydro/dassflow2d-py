@@ -75,11 +75,11 @@ class TestDischarge1(unittest.TestCase):
     def setUp(self):
 
         # Setup all variables
-        self.config = Configuration()
+        self.config = Configuration(None)
         hydro_filepath = os.path.join('src', 'test', 'resources', 'boundary', 'hydrographs.txt')
         self.config.updateValues({
             "hydrographs-file": hydro_filepath
-        })
+        }, None)
 
         self.small_cell = MockCell()
         self.medium_cell = MockCell()

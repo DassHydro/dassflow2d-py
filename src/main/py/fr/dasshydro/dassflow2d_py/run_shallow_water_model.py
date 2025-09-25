@@ -1,224 +1,90 @@
-# imports
-
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration, load_from_file
-from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme, ResolutionMethod
-
-def get_resolution_method(configuration: Configuration) -> ResolutionMethod:
-    """
-    Decide what ResolutionMethod to use based on temporal and spatial schemes
-
-    :param Configuration configuration: Configuration of the launch
-    :return: An instance of ResolutionMethod suited for selected schemes
-    :rtype: ResolutionMethod
-    """
-    temporal_scheme = configuration.getTemporalScheme()
-    spatial_scheme = configuration.getSpatialScheme()
-
-    if temporal_scheme == TemporalScheme.EULER and spatial_scheme == SpatialScheme.HLLC:
-
-        # TODO: configure euler time step here (porosity, infiltration...)
-        from fr.dasshydro.dassflow2d_py.resolution.EulerTimeStep import EulerTimeStep
-        return EulerTimeStep(configuration)
-
-    else:
-
-        raise NotImplementedError("As for now, only Euler with HLLC is supported.")
-
-
-from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-from fr.dasshydro.dassflow2d_py.input.CellBathymetryDict import CellBathymetryDict
-from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
-from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
-from fr.dasshydro.dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition, createBoundaryConditions
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl, Boundary, RawInlet, RawOutlet
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
-import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
-
-def run_shallow_water_model(configuration: Configuration):
-    """
-    Configure and run the shallow water model using data from the specified input folder.
-
-    This function is responsible for setting up any necessary data required for the shallow water model and then executing the
-    model using the configured data.
-
-    :param Configuration configuration: Configuration of the launch
-    :raises: NotImplementedError: This function is not implemented yet and will raise a NotImplementedError when called.
-    """
-
-    ####################### Reading #######################
-
-    # Read mesh
-    mesh_reader = DassflowMeshReader()
-    mesh_file = configuration.getMeshFile()
-    raw_info = mesh_reader.read(mesh_file)
-    raw_mesh_info = raw_info[:4]
-
-    # Read bathymetry
-    _, cell_bathymetry = raw_info[4:6]
-
-    # Read first time step state
-    initial_state_reader = InitialStateReader()
-    initial_state_file = configuration.getInitialStateFile()
-
-    ##################### Initialize ######################
-
-    ### Create the mesh
-    boundary_origin: dict[Boundary, RawInlet|RawOutlet] = {}
-    mesh = MeshImpl.createFromPartialInformation(*(*raw_mesh_info, boundary_origin))
-
-    ### Create boundary condition
-    # create boundary groups
-    boundary_groups = {}
-    for boundary in mesh.getBoundaries():
-        raw_boundary = boundary_origin.get(boundary)
-        if raw_boundary is None:
-            boundary_groups[boundary] = 0
-        else:
-            boundary_groups[boundary] = raw_boundary.group_number
-
-    boundary_conditions = createBoundaryConditions(
-        configuration,
-        mesh.getBoundaries(),
-        boundary_groups
-    )
-
-    ### Create bathymetry dictionary
-    bathymetry = CellBathymetryDict(cell_bathymetry)
-
-    # adds ghost cell bathymetry
-    for flow_boundary, raw_boundary in boundary_origin.items():
-        boundary_edge = flow_boundary.getEdge()
-        ghost_cell = boundary_edge.getGhostCell()
-        assert ghost_cell.isGhost()
-        bathymetry[ghost_cell] = raw_boundary.ghost_cell_bathymetry
-
-    ### Create initial state
-    raw_initial_state = initial_state_reader.read(initial_state_file, mesh.getCellNumber())
-    node_dictionary = {}
-    for i, cell in enumerate(mesh.getCells()):
-        node_dictionary[cell] = raw_initial_state[i]
-    initial_state = TimeStepState(node_dictionary)
-
-    # Instantiate used resolution method based on parameters
-    resolution_method = get_resolution_method(configuration)
-
-    # Initialize time variables
-    use_cfl = configuration.isDeltaAdaptative()
-    delta = configuration.getDefaultDelta() # used only if not adaptative
-    delta_to_write = configuration.getDeltaToWrite()
-
-    # Instantiate result writer
-    result_file_path = configuration.getResultFilePath()
-    result_writer = ResultWriter(mesh, result_file_path, delta_to_write)
-
-    # Initialize runner variables
-    current_state = initial_state
-    simulation_time = configuration.getSimulationTime()
-    current_simulation_time = 0.0
-
-    ######################### Run #########################
-
-    # Iterative call loop
-    while current_simulation_time < simulation_time:
-
-        # update all boundary conditions
-        for bc in boundary_conditions:
-            bc.update(bathymetry, current_state, current_simulation_time)
-
-        # get time step
-        if use_cfl:
-            delta = dt.get_delta_using_cfl(current_state, mesh)
-
-        # resolve using resolution method
-        current_state = resolution_method.resolve(current_state, delta, mesh, bathymetry)
-
-        current_simulation_time += delta
-
-        if result_writer.isTimeToWrite(current_simulation_time):
-
-            result_writer.save(current_state, current_simulation_time)
-
-    ############### Results post-treatment ################
-
-    output_mode = configuration.getOutputMode()
-
-    result_writer.writeAll(output_mode)
-
 import argparse
+from enum import Enum, auto
+
+from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
+from fr.dasshydro.dassflow2d_py.ShallowWaterModel import ShallowWaterModel, LoopListener
+
+
+# Define an enum for configuration sources
+class ConfigSource(Enum):
+    DEFAULT = auto()
+    CONFIG_FILE = auto()
+    COMMAND_ARGS = auto()
+
+
+# ANSI color codes for printing
+COLORS = {
+    ConfigSource.DEFAULT: "\033[93m",     # Yellow
+    ConfigSource.CONFIG_FILE: "\033[94m", # Blue
+    ConfigSource.COMMAND_ARGS: "\033[92m" # Green
+}
+RESET_COLOR = "\033[0m"
+
 
 def main():
-    args_name = []
     # Setup argument parser
     parser = argparse.ArgumentParser(description="Process a folder path")
-
-    parser.add_argument(
-        "--config-file", "-c",
-        type=str,
-        help="Configuration file path",
-        default="inputs/config.yaml",
-        required=True
-    )
-    args_name.append("config_file")
-
-    parser.add_argument(
-        "--mesh-type", "-mt",
-        type=str,
-        choices=["basic", "dassflow"],
-        help="Temporal scheme for resolution method",
-        required=False
-    )
-    args_name.append("mesh_type")
-
-    parser.add_argument(
-        "--mesh-shape", "-ms",
-        type=str,
-        choices=["triangular", "quadrilateral", "hybrid"],
-        help="Temporal scheme for resolution method",
-        required=False
-    )
-    args_name.append("mesh_shape")
-
-    parser.add_argument(
-        "--mesh-file", "-m",
-        type=str,
-        help="Mesh file name",
-        required=False
-    )
-    args_name.append("mesh_file")
-
-    parser.add_argument(
-        "--temporal-scheme", "-ts",
-        type=str,
-        choices=["euler", "rk2"],
-        help="Temporal scheme for resolution method",
-        required=False
-    )
-    args_name.append("temporal_scheme")
-
-    parser.add_argument(
-        "--spatial-scheme", "-ss",
-        type=str,
-        choices=["first", "muscl"],
-        help="Spatial scheme for resolution method",
-        required=False
-    )
-    args_name.append("spatial_scheme")
+    args_fields = [
+        ("config_file", ("--config-file", "-c"), "Configuration file path", None, True),
+        ("temporal_scheme", ("--temporal-scheme", "-ts"), "Temporal scheme for resolution method", ["euler", "ssp-rk2", "imex"], False),
+        ("spatial_scheme", ("--spatial-scheme", "-ss"), "Spatial scheme for resolution method", ["hllc", "muscl", "low-froude"], False),
+        ("mesh_file", ("--mesh-file", "-mf"), "Mesh file path", None, False),
+        ("boundary_condition_file", ("--boundary-condition-file", "-bcf"), "Boundary condition description file path", None, False),
+        ("initial_state_file", ("--initial-state-file", "-isf"), "Initial state file path", None, False),
+        ("bathymetry_file", ("--bathymetry-file", "-bf"), "Bathymetry file path UNUSED", None, False),
+        ("hydrographs_file", ("--hydrographs-file", "-hf"), "Hydrographs file path", None, False),
+        ("rating_curve_file", ("--rating-curve-file", "-rcf"), "Rating curves file path", None, False),
+        ("manning_file", ("--manning-file", "-mnf"), "Manning file path UNUSED", None, False),
+        ("result_path", ("--result-path", "-rp"), "Result folder path", None, False),
+        ("output_mode", ("--output-mode", "-om"), "Output mode", ["vtk", "tecplot", "gnuplot", "hdf5"], False),
+        ("simulation_time", ("--simulation-time", "-st"), "Total simulation duration", None, False),
+        ("delta_to_write", ("--delta-to-write", "-dtw"), "Time needed to write a snapshot of the state", None, False),
+        ("is_delta_adaptative", ("--is-delta-adaptative", "-da"), "Does delta time adapt to mesh", None, False),
+        ("default_delta", ("--default-delta", "-dd"), "Default value of delta (in case of non-adaptive)", None, False)
+    ]
+    for arg_fields in args_fields:
+        # unpack structure
+        arg_namespace, arg_aliases, arg_help, arg_choices, arg_required = arg_fields
+        parser.add_argument(*arg_aliases, help=arg_help, choices=arg_choices, required=arg_required)
 
     args = parser.parse_args()
 
     # Load configuration from file
-    configuration = load_from_file(args.config_file)
+    configuration = Configuration(ConfigSource.DEFAULT)
+
+    configuration.update_from_file(args.config_file, ConfigSource.CONFIG_FILE)
 
     # Update configuration values with command line arguments
     configuration_values = {}
-    for arg_name in args_name:
-        arg_value = getattr(args, arg_name)
+    for arg_fields in args_fields:
+        arg_namespace = arg_fields[0]
+        arg_value = getattr(args, arg_namespace)
         if arg_value is not None:
-            configuration_values[arg_name] = arg_value
+            configuration_values[arg_namespace] = arg_value
 
-    configuration.updateValues(configuration_values)
+    configuration.updateValues(configuration_values, ConfigSource.COMMAND_ARGS)
 
-    run_shallow_water_model(configuration)
+    # Print where each parameters comes from
+    max_param_length = max(len(param) for param in configuration.getSources().keys())
+    for parameter_namespace, parameter_source in configuration.getSources().items():
+        color = COLORS.get(parameter_source, "")
+        reset = RESET_COLOR
+        print(f"{parameter_namespace:<{max_param_length}} : {color}{parameter_source.name.replace('_', ' ').title()}{reset}")
+
+    shallow_water_model = ShallowWaterModel(configuration)
+
+    """
+    EXAMPLE LISTENER USE CASE
+    class PrintLoopListener(LoopListener):
+        def endOfLoop(self, current_delta, current_state, current_simulation_time):
+            print(current_simulation_time)
+
+    loop_listener = PrintLoopListener()
+
+    shallow_water_model.subscribe(loop_listener)
+    """
+
+    shallow_water_model.run()
 
 if __name__ == "__main__":
     main()

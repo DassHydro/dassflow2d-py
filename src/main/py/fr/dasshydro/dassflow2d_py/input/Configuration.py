@@ -1,5 +1,26 @@
+import yaml
+
 from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
 from fr.dasshydro.dassflow2d_py.output.ResultWriter import OutputMode
+
+
+# Define constants for configuration keys
+TEMPORAL_SCHEME = 'temporal-scheme'
+SPATIAL_SCHEME = 'spatial-scheme'
+MESH_FILE = 'mesh-file'
+BOUNDARY_CONDITION_FILE = 'boundary-condition-file'
+INITIAL_STATE_FILE = 'initial-state-file'
+BATHYMETRY_FILE = 'bathymetry-file'
+HYDROGRAPHS_FILE = 'hydrographs-file'
+RATING_CURVE_FILE = 'rating-curve-file'
+MANNING_FILE = 'manning-file'
+RESULT_PATH = 'result-path'
+OUTPUT_MODE = 'output-mode'
+SIMULATION_TIME = 'simulation-time'
+DELTA_TO_WRITE = 'delta-to-write'
+IS_DELTA_ADAPTATIVE = 'is-delta-adaptative'
+DEFAULT_DELTA = 'default-delta'
+CONFIG_FILE = 'config_file'
 
 class Configuration:
     """
@@ -7,135 +28,155 @@ class Configuration:
     This class does not support data source resolution
     (i.e. it does not remember for each namespace, the source of the associated value)
     """
-
     # Define default values and valid namespaces at the same time
     DEFAULT = {
-        'temporal-scheme': TemporalScheme.EULER.value,
-        'spatial-scheme': SpatialScheme.HLLC.value,
-        'mesh-file': 'mesh.geo',
-        'boundary-condition-file': 'bc.txt',
-        'initial-state-file': 'dof_init.txt',
-        'bathymetry-file': 'bathymetry.txt',
-        'hydrographs-file': 'hydrograph.txt',
-        'rating-curve-file': 'rating_curve.txt',
-        'manning-file': 'manning.txt',
-        'result-path': 'output/',
-        'output-mode': OutputMode.GNUPLOT.value,
-        'simulation-time': '10000.0',
-        'delta-to-write': '100.0',
-        'is-delta-adaptative': 'False',
-        'default-delta': '0.01'
+        TEMPORAL_SCHEME: 'euler',
+        SPATIAL_SCHEME: 'hllc',
+        MESH_FILE: 'mesh.geo',
+        BOUNDARY_CONDITION_FILE: 'bc.txt',
+        INITIAL_STATE_FILE: 'dof_init.txt',
+        BATHYMETRY_FILE: 'bathymetry.txt',
+        HYDROGRAPHS_FILE: 'hydrograph.txt',
+        RATING_CURVE_FILE: 'rating_curve.txt',
+        MANNING_FILE: 'manning.txt',
+        RESULT_PATH: 'output/',
+        OUTPUT_MODE: 'gnuplot',
+        SIMULATION_TIME: '10000.0',
+        DELTA_TO_WRITE: '100.0',
+        IS_DELTA_ADAPTATIVE: 'False',
+        DEFAULT_DELTA: '0.01'
     }
 
-    def __init__(self):
-        self.updateValues(self.DEFAULT)
+    def __init__(self, source):
+        self.values = {}
+        self.sources = {}
+        self.updateValues(self.DEFAULT, source)
 
-    def getTemporalScheme(self) -> TemporalScheme:
-        return self.temporal_scheme
+    def update_from_file(self, file_path: str, source):
+        """
+        Load configuration values from a YAML file and return a Configuration object.
 
-    def getSpatialScheme(self) -> SpatialScheme:
-        return self.spatial_scheme
+        Args:
+            file_path (str): configuration yaml file path
+            source (_type_): source object to associate to each modified values
+        """
+        with open(file_path, 'r') as file:
+            yaml_data = yaml.safe_load(file)
+        self.updateValues(yaml_data, source)
 
-    def getMeshFile(self) -> str:
-        return self.mesh_file
+    def updateValues(self, values: dict[str, str], source):
+        """
+        Update values from dictionary
 
-    def getBoundaryConditionFile(self) -> str:
-        return self.boundary_condition_file
+        Args:
+            values (dict[str, str]): dictionary containing values
+            source (_type_): source object to associate to each modified values
+        """
 
-    def getInitialStateFile(self) -> str:
-        return self.initial_state_file
+        if TEMPORAL_SCHEME in values:
+            self.values[TEMPORAL_SCHEME] = TemporalScheme(values[TEMPORAL_SCHEME])
+            self.sources[TEMPORAL_SCHEME] = source
 
-    def getBathymetryFile(self) -> str:
-        return self.bathymetry_file
+        if SPATIAL_SCHEME in values:
+            self.values[SPATIAL_SCHEME] = SpatialScheme(values[SPATIAL_SCHEME])
+            self.sources[SPATIAL_SCHEME] = source
 
-    def getHydrographsFile(self) -> str:
-        return self.hydrographs_file
+        if MESH_FILE in values:
+            self.values[MESH_FILE] = values[MESH_FILE]
+            self.sources[MESH_FILE] = source
 
-    def getRatingCurvesFile(self) -> str:
-        return self.rating_curves_file
+        if BOUNDARY_CONDITION_FILE in values:
+            self.values[BOUNDARY_CONDITION_FILE] = values[BOUNDARY_CONDITION_FILE]
+            self.sources[BOUNDARY_CONDITION_FILE] = source
 
-    def getManningFile(self) -> str:
-        return self.manning_file
+        if INITIAL_STATE_FILE in values:
+            self.values[INITIAL_STATE_FILE] = values[INITIAL_STATE_FILE]
+            self.sources[INITIAL_STATE_FILE] = source
 
-    def getResultFilePath(self) -> str:
-        return self.result_path
+        if BATHYMETRY_FILE in values:
+            self.values[BATHYMETRY_FILE] = values[BATHYMETRY_FILE]
+            self.sources[BATHYMETRY_FILE] = source
 
-    def getOutputMode(self) -> OutputMode:
-        return self.output_mode
+        if HYDROGRAPHS_FILE in values:
+            self.values[HYDROGRAPHS_FILE] = values[HYDROGRAPHS_FILE]
+            self.sources[HYDROGRAPHS_FILE] = source
+
+        if RATING_CURVE_FILE in values:
+            self.values[RATING_CURVE_FILE] = values[RATING_CURVE_FILE]
+            self.sources[RATING_CURVE_FILE] = source
+
+        if MANNING_FILE in values:
+            self.values[MANNING_FILE] = values[MANNING_FILE]
+            self.sources[MANNING_FILE] = source
+
+        if RESULT_PATH in values:
+            self.values[RESULT_PATH] = values[RESULT_PATH]
+            self.sources[RESULT_PATH] = source
+
+        if OUTPUT_MODE in values:
+            self.values[OUTPUT_MODE] = OutputMode(values[OUTPUT_MODE])
+            self.sources[OUTPUT_MODE] = source
+
+        if SIMULATION_TIME in values:
+            self.values[SIMULATION_TIME] = float(values[SIMULATION_TIME])
+            self.sources[SIMULATION_TIME] = source
+
+        if DELTA_TO_WRITE in values:
+            self.values[DELTA_TO_WRITE] = float(values[DELTA_TO_WRITE])
+            self.sources[DELTA_TO_WRITE] = source
+
+        if IS_DELTA_ADAPTATIVE in values:
+            self.values[IS_DELTA_ADAPTATIVE] = bool(values[IS_DELTA_ADAPTATIVE])
+            self.sources[IS_DELTA_ADAPTATIVE] = source
+
+        if DEFAULT_DELTA in values:
+            self.values[DEFAULT_DELTA] = float(values[DEFAULT_DELTA])
+            self.sources[DEFAULT_DELTA] = source
+
+    def getSources(self) -> dict:
+        return self.sources
+
+    def getTemporalScheme(self):
+        return self.values[TEMPORAL_SCHEME]
+
+    def getSpatialScheme(self):
+        return self.values[SPATIAL_SCHEME]
+
+    def getMeshFile(self):
+        return self.values[MESH_FILE]
+
+    def getBoundaryConditionFile(self):
+        return self.values[BOUNDARY_CONDITION_FILE]
+
+    def getInitialStateFile(self):
+        return self.values[INITIAL_STATE_FILE]
+
+    def getBathymetryFile(self):
+        return self.values[BATHYMETRY_FILE]
+
+    def getHydrographsFile(self):
+        return self.values[HYDROGRAPHS_FILE]
+
+    def getRatingCurvesFile(self):
+        return self.values[RATING_CURVE_FILE]
+
+    def getManningFile(self):
+        return self.values[MANNING_FILE]
+
+    def getResultFilePath(self):
+        return self.values[RESULT_PATH]
+
+    def getOutputMode(self):
+        return self.values[OUTPUT_MODE]
 
     def getSimulationTime(self) -> float:
-        return self.simulation_time
+        return float(self.values[SIMULATION_TIME])
 
     def getDeltaToWrite(self) -> float:
-        return self.delta_to_write
+        return float(self.values[DELTA_TO_WRITE])
 
     def isDeltaAdaptative(self) -> bool:
-        return self.is_delta_adaptative
+        return bool(self.values[IS_DELTA_ADAPTATIVE])
 
     def getDefaultDelta(self) -> float:
-        return self.default_delta
-
-    def updateValues(self, values: dict[str, str]):
-        if 'temporal-scheme' in values:
-            self.temporal_scheme = TemporalScheme(values['temporal-scheme'])
-
-        if 'spatial-scheme' in values:
-            self.spatial_scheme = SpatialScheme(values['spatial-scheme'])
-
-        if 'mesh-file' in values:
-            self.mesh_file = values['mesh-file']
-
-        if 'boundary-condition-file' in values:
-            self.boundary_condition_file = values['boundary-condition-file']
-
-        if 'initial-state-file' in values:
-            self.initial_state_file = values['initial-state-file']
-
-        if 'bathymetry-file' in values:
-            self.bathymetry_file = values['bathymetry-file']
-
-        if 'hydrographs-file' in values:
-            self.hydrographs_file = values['hydrographs-file']
-
-        if 'rating-curve-file' in values:
-            self.rating_curves_file = values['rating-curve-file']
-
-        if 'manning-file' in values:
-            self.manning_file = values['manning-file']
-
-        if 'result-path' in values:
-            self.result_path = values['result-path']
-
-        if 'output-mode' in values:
-            self.output_mode = OutputMode(values['output-mode'])
-
-        if 'simulation-time' in values:
-            self.simulation_time = float(values['simulation-time'])
-
-        if 'delta-to-write' in values:
-            self.delta_to_write = float(values['delta-to-write'])
-
-        if 'is-delta-adaptative' in values:
-            self.is_delta_adaptative = bool(values['is-delta-adaptative'])
-
-        if 'default-delta' in values:
-            self.default_delta = float(values['default-delta'])
-
-
-import yaml
-
-def load_from_file(file_path: str) -> Configuration:
-    """
-    Load configuration values from a YAML file and return a Configuration object.
-    :param str file_path: configuration yaml file path
-    :return: An instance of Configuration with values updated to match configuration yaml file content
-    :rtype: Configuration
-    """
-    config = Configuration()
-
-    with open(file_path, 'r') as file:
-        yaml_data = yaml.safe_load(file)
-
-    config.updateValues(yaml_data)
-
-    return config
+        return float(self.values[DEFAULT_DELTA])

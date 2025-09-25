@@ -37,12 +37,12 @@ class TestBoundaryConditions(unittest.TestCase):
 
     def setUp(self):
 
-        self.configuration = Configuration()
+        self.configuration = Configuration(None)
         self.bc_temp_file = tempfile.NamedTemporaryFile(mode='w', delete=False)
 
         self.configuration.updateValues({
             "boundary-condition-file": self.bc_temp_file.name
-        })
+        }, None)
 
     def test_createBoundaryConditions(self):
         # Setup
