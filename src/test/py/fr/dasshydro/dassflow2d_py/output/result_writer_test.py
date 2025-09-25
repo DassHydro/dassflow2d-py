@@ -26,7 +26,7 @@ class TestResultWriter(unittest.TestCase):
     def testValidParameters(self):
         # Test for invalid path
         with self.assertRaises(ValueError, msg="Constructor should raise ValueError for invalid paths"):
-            ResultWriter(self.mesh, "invalid//path../", 1.0)
+            ResultWriter(self.mesh, None, 1.0)
 
         # Test for file path
         with self.assertRaises(ValueError, msg="Constructor should raise ValueError for paths that point to files"):
@@ -34,11 +34,11 @@ class TestResultWriter(unittest.TestCase):
 
         # Test for negative delta_to_write
         with self.assertRaises(ValueError, msg="Constructor should raise ValueError for negative delta_to_write (-1.0)"):
-            ResultWriter(self.mesh, "valid/path/", -1.0)
+            ResultWriter(self.mesh, os.path.join('src', 'test', 'resources', 'output'), -1.0)
 
         # Test for null mesh value
         with self.assertRaises(ValueError, msg="Constructor should raise ValueError is mesh is null"):
-            ResultWriter(None, "valid/path/", 1.0)
+            ResultWriter(None, os.path.join('src', 'test', 'resources', 'output'), 1.0)
 
     def testRightTiming(self):
         self.assertFalse(self.result_writer.isTimeToWrite(0.0))

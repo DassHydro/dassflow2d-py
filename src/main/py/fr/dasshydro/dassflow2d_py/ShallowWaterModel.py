@@ -54,7 +54,7 @@ class ShallowWaterModel:
 
         # Read mesh
         mesh_reader = self._get_mesh_reader()
-        mesh_file = configuration.getMeshFile()
+        mesh_file = configuration.getMeshFilePath()
         raw_info = mesh_reader.read(mesh_file)
         raw_mesh_info = raw_info[:4]
 
@@ -63,7 +63,7 @@ class ShallowWaterModel:
 
         # Read first time step state
         initial_state_reader = InitialStateReader()
-        initial_state_file = configuration.getInitialStateFile()
+        initial_state_file = configuration.getInitialStateFilePath()
 
         ##################### Initialize ######################
 
@@ -129,13 +129,13 @@ class ShallowWaterModel:
         self.resolution_method = self._get_resolution_method(configuration)
 
         # Initialize time variables
-        self.use_cfl = configuration.isDeltaAdaptative()
+        self.use_cfl = configuration.isDeltaAdaptive()
         self.default_delta = configuration.getDefaultDelta() # used only if not adaptative
         delta_to_write = configuration.getDeltaToWrite()
 
         # Instantiate result writer
-        result_file_path = configuration.getResultFilePath()
-        self.result_writer = ResultWriter(mesh, result_file_path, delta_to_write)
+        result_folder_path = configuration.getResultFolderPath()
+        self.result_writer = ResultWriter(mesh, result_folder_path, delta_to_write)
 
         # Initialize runner variables
         self.simulation_time = configuration.getSimulationTime()
