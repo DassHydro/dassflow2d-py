@@ -9,7 +9,7 @@ def main():
 
         # Check if build module is installed, if not, install it
         try:
-            import build
+            import build # type: ignore
         except ImportError:
             print("The 'build' module is not installed. Installing it now...")
             subprocess.check_call([sys.executable, "-m", "pip", "install", "build"])
