@@ -4,7 +4,8 @@ from fr.dasshydro.dassflow2d_py.mesh.Mesh import RawVertex, RawCell, RawInlet, R
 
 
 class DassflowMeshReader(MeshReader):
-    """This class implements the reading of a mesh, on a dassflow mesh type
+    """
+    This class implements the reading of a mesh, on a dassflow mesh type
     """
 
     def __init__(self):

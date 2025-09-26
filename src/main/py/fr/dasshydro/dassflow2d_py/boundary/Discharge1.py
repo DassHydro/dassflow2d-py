@@ -13,6 +13,9 @@ class Discharge1(DynamicBoundaryCondition):
         return BoundaryType.INFLOW
 
     def update(self, bathymetry, current_state: TimeStepState, current_simulation_time: float):
+        """
+        Distribute the interpolated q_in value to each boundaries in the list
+        """
 
         q_in = self.interpolate_dynamic_value(current_simulation_time)
 
@@ -25,14 +28,12 @@ class Discharge1(DynamicBoundaryCondition):
             h = max(0.0001, h)  # Avoid zero or very small values
             sum_pow_h += (h ** (5/3)) * edge.getLength()
 
-        inflows = {}
         for boundary in self.boundaries:
             edge = boundary.getEdge()
             cell = edge.getCells()[0]
             h = current_state.getNode(cell).h
             h = max(0.0001, h)  # Avoid zero or very small values
             inflow = -q_in * (h ** (2/3)) / sum_pow_h
-            inflows[boundary] = inflow
             # Update the ghost cell's u (discharge) value
             ghost_cell = edge.getGhostCell()
             ghost_cell_node = current_state.getNode(ghost_cell)
