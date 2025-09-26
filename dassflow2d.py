@@ -2,15 +2,15 @@ import sys
 import os
 
 # Add src/main/py to sys.path at the beginning of the script
-src_path = os.path.join('src', 'main', 'py')
+src_path = os.path.join('src', 'main', 'py', 'fr', 'dasshydro')
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
 import argparse
 from enum import Enum, auto
 
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
-from fr.dasshydro.dassflow2d_py.ShallowWaterModel import ShallowWaterModel, LoopListener
+from dassflow2d_py.input.Configuration import Configuration                 # type: ignore
+from dassflow2d_py.ShallowWaterModel import ShallowWaterModel, LoopListener # type: ignore
 
 
 # Define an enum for configuration sources
