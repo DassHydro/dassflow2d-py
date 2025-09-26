@@ -4,10 +4,10 @@ from tempfile import TemporaryDirectory
 import h5py #type: ignore
 import vtk #type: ignore
 
-from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter, OutputMode
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
-from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl
+from dassflow2d_py.output.ResultWriter import ResultWriter, OutputMode
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
+from dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
+from dassflow2d_py.mesh.MeshImpl import MeshImpl
 
 class TestResultWriter(unittest.TestCase):
 

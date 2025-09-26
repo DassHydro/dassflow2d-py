@@ -4,8 +4,8 @@ import logging
 import h5py #type: ignore
 import vtk #type: ignore
 
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Mesh
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState
+from dassflow2d_py.mesh.Mesh import Mesh
 
 class OutputMode(Enum):
     VTK = 'vtk',

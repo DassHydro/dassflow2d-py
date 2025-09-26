@@ -3,10 +3,10 @@ import os
 import yaml
 from math import sqrt
 from statistics import mean
-from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl, BoundaryType, Boundary
+from dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
+from dassflow2d_py.mesh.MeshImpl import MeshImpl, BoundaryType, Boundary
 # Unnecessary imports (here for type check)
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import RawVertex, RawCell
+from dassflow2d_py.mesh.Mesh import RawVertex, RawCell
 
 class TestMeshImpl(unittest.TestCase):
     def setUp(self):

@@ -1,9 +1,9 @@
 import unittest
 from unittest.mock import MagicMock
 
-from fr.dasshydro.dassflow2d_py.boundary.Wall import Wall
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Boundary, BoundaryType, Cell
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
+from dassflow2d_py.boundary.Wall import Wall
+from dassflow2d_py.mesh.Mesh import Boundary, BoundaryType, Cell
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
 
 class TestWall(unittest.TestCase):
     def setUp(self):

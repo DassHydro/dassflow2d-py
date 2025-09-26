@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import RawCell, RawVertex, RawInlet, RawOutlet
+from dassflow2d_py.mesh.Mesh import RawCell, RawVertex, RawInlet, RawOutlet
 
 
 class MeshReader(ABC):

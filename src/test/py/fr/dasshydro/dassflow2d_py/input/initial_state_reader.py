@@ -3,7 +3,7 @@ import os
 import glob
 import yaml
 
-from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
+from dassflow2d_py.input.InitialStateReader import InitialStateReader
 
 class TestInitialStateReader(unittest.TestCase):
 

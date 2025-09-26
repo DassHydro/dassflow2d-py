@@ -1,5 +1,5 @@
-from fr.dasshydro.dassflow2d_py.input.file_reading import extract, next_line
-from fr.dasshydro.dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition
+from dassflow2d_py.input.file_reading import extract, next_line
+from dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition
 
 
 class DynamicBoundaryCondition(BoundaryCondition):

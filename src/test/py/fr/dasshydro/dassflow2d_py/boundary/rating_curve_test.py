@@ -1,10 +1,10 @@
 import unittest
 import os
 
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
-from fr.dasshydro.dassflow2d_py.boundary.RatingCurve import RatingCurve
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import Boundary, BoundaryType, Edge, Cell
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
+from dassflow2d_py.input.Configuration import Configuration
+from dassflow2d_py.boundary.RatingCurve import RatingCurve
+from dassflow2d_py.mesh.MeshImpl import Boundary, BoundaryType, Edge, Cell
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
 
 class MockCell(Cell):
     def getID(self):

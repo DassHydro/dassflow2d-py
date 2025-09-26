@@ -1,6 +1,6 @@
 from typing import Iterable
 
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Cell
+from dassflow2d_py.mesh.Mesh import Cell
 
 class Node:
 

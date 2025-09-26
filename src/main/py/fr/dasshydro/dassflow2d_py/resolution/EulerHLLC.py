@@ -1,5 +1,5 @@
-from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import ResolutionMethod
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
+from dassflow2d_py.resolution.ResolutionMethod import ResolutionMethod
+from dassflow2d_py.input.Configuration import Configuration
 
 class EulerHLLC(ResolutionMethod):
 

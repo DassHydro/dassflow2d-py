@@ -1,5 +1,5 @@
 from typing import Callable
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Vertex, Cell
+from dassflow2d_py.mesh.Mesh import Vertex, Cell
 
 class BathymetryReader:
     """

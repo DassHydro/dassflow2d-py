@@ -1,8 +1,8 @@
 import unittest
 import os
 import tempfile
-from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import RawVertex, RawCell, RawInlet, RawOutlet
+from dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
+from dassflow2d_py.mesh.Mesh import RawVertex, RawCell, RawInlet, RawOutlet
 
 class TestDassflowMeshReader(unittest.TestCase):
     def setUp(self):

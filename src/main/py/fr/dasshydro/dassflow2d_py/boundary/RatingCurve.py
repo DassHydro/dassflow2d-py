@@ -1,9 +1,9 @@
-from fr.dasshydro.dassflow2d_py.boundary.DynamicBoundaryCondition import DynamicBoundaryCondition
+from dassflow2d_py.boundary.DynamicBoundaryCondition import DynamicBoundaryCondition
 
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Boundary, BoundaryType
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
-from fr.dasshydro.dassflow2d_py.input.file_reading import extract, next_line
+from dassflow2d_py.input.Configuration import Configuration
+from dassflow2d_py.mesh.Mesh import Boundary, BoundaryType
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
+from dassflow2d_py.input.file_reading import extract, next_line
 
 class RatingCurve(DynamicBoundaryCondition):
     def __init__(self, configuration: Configuration, boundaries, *args):

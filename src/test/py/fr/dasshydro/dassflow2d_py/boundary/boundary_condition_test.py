@@ -1,10 +1,10 @@
 import unittest
 import tempfile
 
-from fr.dasshydro.dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition, createBoundaryConditions
-from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl, Boundary, BoundaryType, RawCell, RawVertex, RawInlet, RawOutlet
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
+from dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition, createBoundaryConditions
+from dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
+from dassflow2d_py.mesh.MeshImpl import MeshImpl, Boundary, BoundaryType, RawCell, RawVertex, RawInlet, RawOutlet
+from dassflow2d_py.input.Configuration import Configuration
 
 
 class MockBoundary(Boundary):

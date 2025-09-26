@@ -3,7 +3,7 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
-pythonpath = "src/main/py"
+pythonpath = "src/main/py/fr/dasshydro"
 
 [project]
 name = "dassflow2d-py"
@@ -27,5 +27,4 @@ Repository = "https://github.com/DassHydro/dassflow2d-py.git"
 Issues = "https://github.com/DassHydro/dassflow2d-py/issues"
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["dassflow2d_py*"]
+where = ["src/main/py/fr/dasshydro"]

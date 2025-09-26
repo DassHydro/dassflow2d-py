@@ -1,5 +1,5 @@
-from fr.dasshydro.dassflow2d_py.input.file_reading import *
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import Node
+from dassflow2d_py.input.file_reading import *
+from dassflow2d_py.d2dtime.TimeStepState import Node
 
 class InitialStateReader:
 

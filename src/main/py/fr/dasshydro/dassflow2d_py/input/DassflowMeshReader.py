@@ -1,6 +1,6 @@
-from fr.dasshydro.dassflow2d_py.input.file_reading import *
-from fr.dasshydro.dassflow2d_py.input.MeshReader import MeshReader
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import RawVertex, RawCell, RawInlet, RawOutlet
+from dassflow2d_py.input.file_reading import *
+from dassflow2d_py.input.MeshReader import MeshReader
+from dassflow2d_py.mesh.Mesh import RawVertex, RawCell, RawInlet, RawOutlet
 
 
 class DassflowMeshReader(MeshReader):

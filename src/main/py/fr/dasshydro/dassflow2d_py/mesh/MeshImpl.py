@@ -1,4 +1,4 @@
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import *
+from dassflow2d_py.mesh.Mesh import *
 import math
 from typing import cast, Iterable
 

@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import Type, Iterable, Sequence
 
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
-from fr.dasshydro.dassflow2d_py.input.file_reading import extract, next_line
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Cell, Boundary, BoundaryType
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
+from dassflow2d_py.input.Configuration import Configuration
+from dassflow2d_py.input.file_reading import extract, next_line
+from dassflow2d_py.mesh.Mesh import Cell, Boundary, BoundaryType
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState
 
 
 class BoundaryCondition(ABC):
@@ -31,9 +31,9 @@ class BoundaryCondition(ABC):
 
 
 # implementations imports here ...
-from fr.dasshydro.dassflow2d_py.boundary.Discharge1 import Discharge1
-from fr.dasshydro.dassflow2d_py.boundary.RatingCurve import RatingCurve
-from fr.dasshydro.dassflow2d_py.boundary.Wall import Wall
+from dassflow2d_py.boundary.Discharge1 import Discharge1
+from dassflow2d_py.boundary.RatingCurve import RatingCurve
+from dassflow2d_py.boundary.Wall import Wall
 
 # default association between namespaces and BoundaryCondition implementation
 default_boundary_condition_class: dict[str, Type[BoundaryCondition]] = {

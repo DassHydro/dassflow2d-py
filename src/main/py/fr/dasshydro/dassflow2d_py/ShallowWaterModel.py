@@ -1,23 +1,23 @@
 from abc import ABC, abstractmethod
 
 # input
-from fr.dasshydro.dassflow2d_py.input.Configuration import Configuration
-from fr.dasshydro.dassflow2d_py.input.MeshReader import MeshReader
-from fr.dasshydro.dassflow2d_py.input.InitialStateReader import InitialStateReader
+from dassflow2d_py.input.Configuration import Configuration
+from dassflow2d_py.input.MeshReader import MeshReader
+from dassflow2d_py.input.InitialStateReader import InitialStateReader
 # output
-from fr.dasshydro.dassflow2d_py.output.ResultWriter import ResultWriter
+from dassflow2d_py.output.ResultWriter import ResultWriter
 
 # mesh and geometry context
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Cell, Boundary, RawInlet, RawOutlet
-from fr.dasshydro.dassflow2d_py.mesh.MeshImpl import MeshImpl
-from fr.dasshydro.dassflow2d_py.boundary.BoundaryCondition import createBoundaryConditions
+from dassflow2d_py.mesh.Mesh import Cell, Boundary, RawInlet, RawOutlet
+from dassflow2d_py.mesh.MeshImpl import MeshImpl
+from dassflow2d_py.boundary.BoundaryCondition import createBoundaryConditions
 
 # time and state
-import fr.dasshydro.dassflow2d_py.d2dtime.delta as dt
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
+import dassflow2d_py.d2dtime.delta as dt
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState, Node
 
 # resolution (a lot is in dynamic imports)
-from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import ResolutionMethod, TemporalScheme, SpatialScheme
+from dassflow2d_py.resolution.ResolutionMethod import ResolutionMethod, TemporalScheme, SpatialScheme
 
 
 class LoopListener(ABC):
@@ -149,7 +149,7 @@ class ShallowWaterModel:
             MeshReader: correct implementation of a mesh reader
         """
 
-        from fr.dasshydro.dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
+        from dassflow2d_py.input.DassflowMeshReader import DassflowMeshReader
         return DassflowMeshReader()
 
     def _get_resolution_method(self, configuration: Configuration) -> ResolutionMethod:
@@ -165,7 +165,7 @@ class ShallowWaterModel:
 
         if temporal_scheme is TemporalScheme.EULER and spatial_scheme is SpatialScheme.HLLC:
 
-            from fr.dasshydro.dassflow2d_py.resolution.EulerHLLC import EulerHLLC
+            from dassflow2d_py.resolution.EulerHLLC import EulerHLLC
             return EulerHLLC(configuration)
 
         else:

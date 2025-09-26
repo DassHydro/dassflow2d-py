@@ -1,7 +1,7 @@
 import yaml
 
-from fr.dasshydro.dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
-from fr.dasshydro.dassflow2d_py.output.ResultWriter import OutputMode
+from dassflow2d_py.resolution.ResolutionMethod import TemporalScheme, SpatialScheme
+from dassflow2d_py.output.ResultWriter import OutputMode
 
 
 # Define constants for configuration keys

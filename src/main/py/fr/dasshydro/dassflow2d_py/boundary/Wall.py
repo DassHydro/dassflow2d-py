@@ -1,7 +1,7 @@
-from fr.dasshydro.dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition
+from dassflow2d_py.boundary.BoundaryCondition import BoundaryCondition
 
-from fr.dasshydro.dassflow2d_py.mesh.Mesh import Cell, Boundary, BoundaryType
-from fr.dasshydro.dassflow2d_py.d2dtime.TimeStepState import TimeStepState
+from dassflow2d_py.mesh.Mesh import Cell, Boundary, BoundaryType
+from dassflow2d_py.d2dtime.TimeStepState import TimeStepState
 
 
 class Wall(BoundaryCondition):
