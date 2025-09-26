@@ -36,6 +36,15 @@ class ResultWriter:
         self.last_quotient = 0
 
     def isTimeToWrite(self, current_simulation_time: float) -> bool:
+        """
+        Tells if the result writer is ready to write considering the time of the request
+
+        Args:
+            current_simulation_time (float): simulation time at request moment
+
+        Returns:
+            bool: wether or not a save call can be done
+        """
         quotient = current_simulation_time // self.dtw
         if quotient > self.last_quotient:
             # it's time to write!
@@ -76,6 +85,16 @@ class ResultWriter:
         return ids, hs, us, vs
 
     def _write_vtk(self, ids, hs, us, vs, filename: str):
+        """
+        Write a file in .vtk format for gnuplot
+
+        Args:
+            ids (_type_): list of all ids in a result file
+            hs (_type_): list of all h value in a result file
+            us (_type_): list of all u value in a result file
+            vs (_type_): list of all v value in a result file
+            filename (str): result vtk file
+        """
         points = vtk.vtkPoints()
         cells = vtk.vtkCellArray()
         h_data = vtk.vtkDoubleArray()
@@ -116,6 +135,16 @@ class ResultWriter:
         writer.Write()
 
     def _write_tecplot(self, ids, hs, us, vs, simulation_time: float, filename: str):
+        """
+        Write a file in .plt format for tecplot
+
+        Args:
+            ids (_type_): list of all ids in a result file
+            hs (_type_): list of all h value in a result file
+            us (_type_): list of all u value in a result file
+            vs (_type_): list of all v value in a result file
+            filename (str): result plt file
+        """
         with open(filename, "w") as file:
             file.write('TITLE = "DassFlow Result File in Time"\n')
             file.write('VARIABLES = "x","y","bathy","h","zs","Manning","u","v"\n')
@@ -145,6 +174,16 @@ class ResultWriter:
                 file.write(f"{vertex1_id} {vertex2_id} {vertex3_id} {vertex4_id}\n")
 
     def _write_gnuplot(self, ids, hs, us, vs, filename: str):
+        """
+        Write a file in .dat format for gnuplot
+
+        Args:
+            ids (_type_): list of all ids in a result file
+            hs (_type_): list of all h value in a result file
+            us (_type_): list of all u value in a result file
+            vs (_type_): list of all v value in a result file
+            filename (str): result dat file
+        """
         with open(filename, "w") as file:
             file.write(" # Gnuplot DataFile Version\n")
             file.write(" # i x y bathy h zs Manning u v\n")
@@ -154,10 +193,13 @@ class ResultWriter:
                 y = cell.getGravityCenter()[1]
                 file.write(f"   {id} {x} {y} 0.0 {hs[i]} {hs[i]} 0.0 {us[i]} {vs[i]}\n")
 
-    def _write_hdf5(self, all_data, filename: str):
+    def _write_hdf5(self, all_data: dict[float, tuple[int, float, float, float]], filename: str):
         """
         Write all raw results into a single HDF5 file.
-        all_data: dict{simulation_time: (ids, hs, us, vs)}
+
+        Args:
+            all_data (dict[float, tuple[int, float, float, float]]): all node values linked to their corresponding time
+            filename (str): result hdf5 file
         """
         with h5py.File(filename, "w") as hdf:
             for time, (ids, hs, us, vs) in all_data.items():
@@ -169,6 +211,12 @@ class ResultWriter:
                 group.create_dataset("v", data=vs)
 
     def writeAll(self, output_mode: OutputMode):
+        """
+        Write all saved results to the corresponding final format specified
+
+        Args:
+            output_mode (OutputMode): specified output mode format
+        """
         raw_files = [f for f in os.listdir(self.result_folder) if f.endswith(".raw")]
         all_data = {}  # Dictionary to store all raw data: {simulation_time: (ids, hs, us, vs)}
 

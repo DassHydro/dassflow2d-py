@@ -35,6 +35,7 @@ from fr.dasshydro.dassflow2d_py.boundary.Discharge1 import Discharge1
 from fr.dasshydro.dassflow2d_py.boundary.RatingCurve import RatingCurve
 from fr.dasshydro.dassflow2d_py.boundary.Wall import Wall
 
+# default association between namespaces and BoundaryCondition implementation
 default_boundary_condition_class: dict[str, Type[BoundaryCondition]] = {
     "discharg1": Discharge1,
     "ratcurve": RatingCurve,
